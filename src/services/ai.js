@@ -1,5 +1,8 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
+// Vérifier que la clé API Anthropic est configurée au démarrage
+console.log('[AI] ANTHROPIC_API_KEY configured:', !!process.env.ANTHROPIC_API_KEY);
+
 // Cache en mémoire pour les résultats identiques
 const cache = new Map();
 
