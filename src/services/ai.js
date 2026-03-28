@@ -7,6 +7,31 @@ console.log('[AI] ANTHROPIC_API_KEY configured:', !!process.env.ANTHROPIC_API_KE
 const cache = new Map();
 
 /**
+ * Gère les erreurs Anthropic avec détection de cas spécifiques
+ * @param {Error} error - L'erreur Anthropic
+ * @returns {object} Objet d'erreur formaté
+ */
+function handleAIError(error) {
+  const isProd = process.env.NODE_ENV === 'production';
+
+  // Détecte l'erreur de crédits Anthropic insuffisants
+  if (error.status === 400 && error.message && error.message.includes('credit balance is too low')) {
+    console.error('[ALERTE CRITIQUE] Crédits Anthropic épuisés - Service IA indisponible');
+    return {
+      message: 'Service temporairement indisponible. Notre équipe a été notifiée.',
+      code: 'AI_SERVICE_UNAVAILABLE',
+    };
+  }
+
+  // Erreur générique
+  console.error('[handleAIError] Error:', error.message);
+  return {
+    message: isProd ? 'Erreur lors de la génération' : error.message,
+    code: error.code || 'AI_ERROR',
+  };
+}
+
+/**
  * Crée une clé de cache unique basée sur les paramètres
  */
 function getCacheKey(type, ...params) {
@@ -76,14 +101,7 @@ Génère une réponse professionnelle courte et personnalisée.`,
 
     return reply;
   } catch (error) {
-    const isProd = process.env.NODE_ENV === 'production';
-
-    console.error('[generateReviewReply] Error:', error.message);
-
-    throw {
-      message: isProd ? 'Erreur lors de la génération de la réponse' : error.message,
-      code: error.code || 'AI_ERROR',
-    };
+    throw handleAIError(error);
   }
 }
 
@@ -152,14 +170,7 @@ Génère un post court, engageant et qui invite les clients à agir.`,
 
     return post;
   } catch (error) {
-    const isProd = process.env.NODE_ENV === 'production';
-
-    console.error('[generateWeeklyPost] Error:', error.message);
-
-    throw {
-      message: isProd ? 'Erreur lors de la génération du post' : error.message,
-      code: error.code || 'AI_ERROR',
-    };
+    throw handleAIError(error);
   }
 }
 

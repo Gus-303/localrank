@@ -46,7 +46,11 @@ localrank/
 ## 5. ÉTAT ACTUEL
 - [x] Structure de base créée
 - [x] Authentification (src/api/auth.js)
-- [x] Connexion Google Business Profile API
+- [x] Connexion Google Business Profile API (src/api/google-auth.js)
+  - [x] GET /api/google/auth - Génère l'URL d'autorisation Google OAuth (protégée)
+  - [x] GET /api/google/callback - Échange le code contre un access_token
+  - [x] GET /api/google/reviews - Récupère les avis (protégée)
+  - [x] Colonnes google_access_token et google_refresh_token ajoutées
 - [x] Génération IA des réponses et posts
 - [x] Paiements Stripe
 - [x] Dashboard frontend
