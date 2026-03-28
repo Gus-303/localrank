@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const authRouter = require('./api/auth');
+const aiRouter = require('./api/ai');
 const { runMigrations } = require('./utils/migrations');
 
 const app = express();
@@ -18,6 +19,7 @@ app.get('/health', (req, res) => {
 app.use(express.static('frontend'));
 
 app.use('/api/auth', authRouter);
+app.use('/api/ai', aiRouter);
 
 // Error handler middleware
 app.use((err, req, res, next) => {

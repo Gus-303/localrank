@@ -50,3 +50,6 @@ localrank/
 - [x] Génération IA des réponses et posts
 - [x] Paiements Stripe
 - [x] Dashboard frontend
+- [x] PostgreSQL intégré
+- [x] Configuration Railway (Procfile + railway.json)
+- [x] Routes API de test Anthropic (src/api/ai.js)
