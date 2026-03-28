@@ -49,4 +49,4 @@ localrank/
 - [x] Connexion Google Business Profile API
 - [x] Génération IA des réponses et posts
 - [x] Paiements Stripe
-- [ ] Dashboard frontend
+- [x] Dashboard frontend

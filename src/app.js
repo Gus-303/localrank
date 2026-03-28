@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const authRouter = require('./api/auth');
+const { runMigrations } = require('./utils/migrations');
 
 const app = express();
 
@@ -14,6 +15,8 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
+app.use(express.static('frontend'));
+
 app.use('/api/auth', authRouter);
 
 // Error handler middleware
@@ -36,9 +39,22 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✓ LocalRank server running on port ${PORT}`);
-  console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+
+async function startServer() {
+  try {
+    // Exécuter les migrations avant de démarrer
+    await runMigrations();
+
+    app.listen(PORT, () => {
+      console.log(`✓ LocalRank server running on port ${PORT}`);
+      console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    console.error('✗ Failed to start server:', error.message);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 module.exports = app;
