@@ -422,6 +422,7 @@
                 <p>Connecté en tant que</p>
                 <p class="email" id="userEmail"></p>
             </div>
+            <button class="btn-primary" id="googleAuthBtn" style="display: none;">🔗 Connecter Google</button>
             <button class="btn-logout" id="logoutBtn">Déconnexion</button>
         </div>
     </header>
@@ -521,6 +522,56 @@
             };
         }
 
+        // Vérifier si Google est connecté
+        async function checkGoogleConnection() {
+            try {
+                const response = await fetch('/api/google/reviews', {
+                    headers: getAuthHeaders(),
+                });
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        // Connecter Google
+        async function connectGoogle() {
+            try {
+                const response = await fetch('/api/google/auth', {
+                    headers: getAuthHeaders(),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authUrl) {
+                        window.location.href = data.authUrl;
+                    } else {
+                        window.location.href = '/api/google/auth';
+                    }
+                } else {
+                    alert('Impossible de générer l\'URL d\'autorisation Google');
+                }
+            } catch (error) {
+                console.error('Erreur de connexion Google:', error);
+                alert('Impossible de connecter Google');
+            }
+        }
+
+        // Initialiser le bouton Google
+        async function initGoogleButton() {
+            const isConnected = await checkGoogleConnection();
+            const googleBtn = document.getElementById('googleAuthBtn');
+            
+            if (!isConnected) {
+                googleBtn.style.display = 'block';
+            } else {
+                googleBtn.style.display = 'none';
+            }
+        }
+
+        // Ajouter l'event listener au bouton Google
+        document.getElementById('googleAuthBtn').addEventListener('click', connectGoogle);
+
         // Charger le score Google
         async function loadGoogleScore() {
             try {
@@ -556,6 +607,20 @@
                 });
 
                 if (!response.ok) {
+                    // Vérifier si c'est parce que Google n'est pas connecté
+                    const isGoogleConnected = await checkGoogleConnection();
+                    if (!isGoogleConnected) {
+                        document.getElementById('reviewsContainer').innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔗</div>
+                                <p>Connectez votre compte Google pour voir vos avis</p>
+                                <button class="btn-primary" onclick="connectGoogle()" style="margin-top: 15px; padding: 10px 20px;">
+                                    Connecter mon compte Google
+                                </button>
+                            </div>
+                        `;
+                        return;
+                    }
                     throw new Error('Impossible de charger les avis');
                 }
 
@@ -734,6 +799,7 @@
 
         // Charger les données au démarrage
         window.addEventListener('load', () => {
+            initGoogleButton();
             loadGoogleScore();
             loadReviews();
             loadPosts();
