@@ -541,19 +541,23 @@
                     headers: getAuthHeaders(),
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.authUrl) {
-                        window.location.href = data.authUrl;
-                    } else {
-                        window.location.href = '/api/google/auth';
-                    }
+                if (!response.ok) {
+                    console.error('Erreur serveur:', response.status, response.statusText);
+                    alert('Impossible de générer l\'URL d\'autorisation Google. Veuillez réessayer.');
+                    return;
+                }
+
+                const data = await response.json();
+                
+                if (data.authUrl) {
+                    // Rediriger vers Google OAuth
+                    window.location.href = data.authUrl;
                 } else {
-                    alert('Impossible de générer l\'URL d\'autorisation Google');
+                    alert('URL d\'autorisation invalide. Veuillez réessayer.');
                 }
             } catch (error) {
                 console.error('Erreur de connexion Google:', error);
-                alert('Impossible de connecter Google');
+                alert('Impossible de connecter Google. Veuillez vérifier votre connexion.');
             }
         }
 

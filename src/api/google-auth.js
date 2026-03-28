@@ -14,8 +14,9 @@ const oauth2Client = new google.auth.OAuth2(
 
 /**
  * GET /api/google/auth
- * Génère l'URL d'autorisation Google OAuth et redirige vers Google
+ * Génère l'URL d'autorisation Google OAuth et la retourne en JSON
  * Protégée : Authentification JWT requise
+ * Retourne : { authUrl: "https://accounts.google.com/o/oauth2/v2/auth?..." }
  */
 router.get('/auth', verifyToken, (req, res) => {
   try {
@@ -29,8 +30,8 @@ router.get('/auth', verifyToken, (req, res) => {
       state: req.user.id, // Stocker l'ID utilisateur dans le state
     });
 
-    console.log('[Google Auth] Redirection vers Google OAuth pour user:', req.user.id);
-    res.redirect(authorizationUrl);
+    console.log('[Google Auth] URL d\'autorisation générée pour user:', req.user.id);
+    res.json({ authUrl: authorizationUrl });
   } catch (error) {
     console.error('[Google Auth] Error:', error.message);
     res.status(500).json({
