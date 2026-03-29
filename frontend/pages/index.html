@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalRank — Amplifiez votre visibilité sur Google</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #574fd6;
+            --primary-light: #ede9ff;
+            --text: #1a1a2e;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ─── HEADER ─────────────────────────────────── */
+        header {
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--text);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-outline {
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(108, 99, 255, 0.35);
+        }
+
+        .btn-lg {
+            padding: 14px 32px;
+            font-size: 1rem;
+            border-radius: 10px;
+        }
+
+        /* ─── HERO ───────────────────────────────────── */
+        .hero {
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9ff 60%, #e0f2fe 100%);
+            padding: 96px 24px 80px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--white);
+            color: var(--primary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #d4d0ff;
+            margin-bottom: 28px;
+        }
+
+        .hero-badge::before {
+            content: "✦";
+            font-size: 0.7rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.4rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            max-width: 760px;
+            margin: 0 auto 20px;
+            color: var(--text);
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto 36px;
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-cta-note {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .hero-targets {
+            margin-top: 52px;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .target-chip {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .target-chip .icon {
+            font-size: 1.1rem;
+        }
+
+        /* ─── SECTION WRAPPER ────────────────────────── */
+        section {
+            padding: 80px 24px;
+        }
+
+        .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            display: block;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto 52px;
+        }
+
+        /* ─── FEATURES ───────────────────────────────── */
+        .features {
+            background: var(--white);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 32px;
+            transition: all 0.25s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* ─── PRICING ────────────────────────────────── */
+        .pricing {
+            background: #f9fafb;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            align-items: start;
+        }
+
+        .plan-card {
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 32px;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        .plan-card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .plan-card.featured {
+            border-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.18);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: var(--white);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .plan-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .plan-price {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--text);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .plan-price sup {
+            font-size: 1.2rem;
+            font-weight: 600;
+            vertical-align: super;
+        }
+
+        .plan-period {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            padding: 7px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .plan-features li::before {
+            content: "✓";
+            color: var(--primary);
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .plan-card.featured .btn-primary {
+            width: 100%;
+            text-align: center;
+        }
+
+        .plan-cta {
+            width: 100%;
+            text-align: center;
+            display: block;
+        }
+
+        .btn-outline-full {
+            width: 100%;
+            text-align: center;
+            display: block;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            background: transparent;
+            padding: 12px 22px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-full:hover {
+            background: var(--primary-light);
+        }
+
+        /* ─── FOOTER ─────────────────────────────────── */
+        footer {
+            background: var(--text);
+            color: #9ca3af;
+            padding: 32px 24px;
+            text-align: center;
+        }
+
+        footer .footer-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        footer .logo-footer {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        footer .logo-footer span {
+            color: var(--primary);
+        }
+
+        footer p {
+            font-size: 0.85rem;
+        }
+
+        /* ─── RESPONSIVE ─────────────────────────────── */
+        @media (max-width: 640px) {
+            .header-inner {
+                padding: 0 16px;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .btn {
+                padding: 8px 14px;
+                font-size: 0.82rem;
+            }
+
+            .hero {
+                padding: 64px 16px 56px;
+            }
+
+            section {
+                padding: 60px 16px;
+            }
+
+            .feature-card,
+            .plan-card {
+                padding: 28px 24px;
+            }
+
+            footer .footer-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── HEADER ─────────────────────────────────────── -->
+    <header>
+        <div class="header-inner">
+            <a href="/pages/index.html" class="logo">Local<span>Rank</span></a>
+            <nav>
+                <a href="/pages/login.html" class="btn btn-outline">Se connecter</a>
+                <a href="/pages/register.html" class="btn btn-primary">Essai gratuit</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ─── HERO ───────────────────────────────────────── -->
+    <section class="hero">
+        <div class="hero-badge">Propulsé par l'IA Anthropic</div>
+        <h1>Amplifiez votre visibilité<br><span>sur Google</span></h1>
+        <p>Répondez automatiquement à vos avis Google avec l'IA et publiez des posts hebdomadaires en 1 clic.</p>
+        <div class="hero-cta">
+            <a href="/pages/register.html" class="btn btn-primary btn-lg">Commencer gratuitement</a>
+            <span class="hero-cta-note">14 jours d'essai gratuit · Sans carte bancaire</span>
+        </div>
+        <div class="hero-targets">
+            <div class="target-chip"><span class="icon">✂️</span> Coiffeurs</div>
+            <div class="target-chip"><span class="icon">🍽️</span> Restaurants</div>
+            <div class="target-chip"><span class="icon">🔧</span> Garages</div>
+        </div>
+    </section>
+
+    <!-- ─── FEATURES ───────────────────────────────────── -->
+    <section class="features">
+        <div class="section-inner">
+            <span class="section-label">Fonctionnalités</span>
+            <h2 class="section-title">Tout ce dont vous avez besoin</h2>
+            <p class="section-subtitle">Une suite complète pour booster votre présence Google en pilote automatique.</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Réponses IA aux avis Google</h3>
+                    <p>Notre IA génère des réponses personnalisées et professionnelles à chaque avis en quelques secondes. Améliorez votre note sans y passer des heures.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>Posts Google hebdomadaires automatiques</h3>
+                    <p>Publiez automatiquement des posts optimisés sur votre fiche Google My Business chaque semaine. Restez actif et visible sans effort.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Suivi du score Google My Business</h3>
+                    <p>Suivez en temps réel l'évolution de votre note, de vos avis et de votre visibilité locale depuis un tableau de bord clair et intuitif.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── PRICING ────────────────────────────────────── -->
+    <section class="pricing">
+        <div class="section-inner">
+            <span class="section-label">Tarifs</span>
+            <h2 class="section-title">Des plans adaptés à votre activité</h2>
+            <p class="section-subtitle">Commencez gratuitement, évoluez selon vos besoins. Sans engagement.</p>
+
+            <div class="pricing-grid">
+
+                <!-- Starter -->
+                <div class="plan-card">
+                    <p class="plan-name">Starter</p>
+                    <div class="plan-price"><sup>€</sup>29</div>
+                    <p class="plan-period">par mois · facturation mensuelle</p>
+                    <ul class="plan-features">
+                        <li>1 établissement</li>
+                        <li>Réponses IA aux avis Google</li>
+                        <li>Tableau de bord de suivi</li>
+                        <li>Support par e-mail</li>
+                    </ul>
+                    <a href="/pages/register.html" class="btn-outline-full">Commencer</a>
+                </div>
+
+                <!-- Pro -->
+                <div class="plan-card featured">
+                    <div class="plan-badge">Le plus populaire</div>
+                    <p class="plan-name">Pro</p>
+                    <div class="plan-price"><sup>€</sup>69</div>
+                    <p class="plan-period">par mois · facturation mensuelle</p>
+                    <ul class="plan-features">
+                        <li>3 établissements</li>
+                        <li>Réponses IA aux avis Google</li>
+                        <li>Posts Google automatiques hebdomadaires</li>
+                        <li>Tableau de bord de suivi avancé</li>
+                        <li>Support prioritaire</li>
+                    </ul>
+                    <a href="/pages/register.html" class="btn btn-primary btn-lg plan-cta">Commencer</a>
+                </div>
+
+                <!-- Agency -->
+                <div class="plan-card">
+                    <p class="plan-name">Agency</p>
+                    <div class="plan-price"><sup>€</sup>149</div>
+                    <p class="plan-period">par mois · facturation mensuelle</p>
+                    <ul class="plan-features">
+                        <li>10 établissements</li>
+                        <li>Tout inclus — réponses IA + posts auto</li>
+                        <li>Rapports PDF mensuels automatiques</li>
+                        <li>Tableau de bord multi-établissements</li>
+                        <li>Support dédié</li>
+                    </ul>
+                    <a href="/pages/register.html" class="btn-outline-full">Commencer</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── FOOTER ──────────────────────────────────────── -->
+    <footer>
+        <div class="footer-inner">
+            <div class="logo-footer">Local<span>Rank</span></div>
+            <p>&copy; 2026 LocalRank. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
