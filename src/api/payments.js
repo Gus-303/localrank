@@ -50,7 +50,7 @@ router.post('/create-checkout', verifyToken, async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price: priceId.trim(), quantity: 1 }],
-      success_url: `${backendUrl}/pages/dashboard.html?success=true`,
+      success_url: `${backendUrl}/pages/dashboard.html?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${backendUrl}/pages/index.html`,
       client_reference_id: String(req.user.id),
       customer_email: req.user.email,
@@ -81,13 +81,26 @@ function getPlanFromPriceId(priceId) {
 
 /**
  * GET /api/payments/success
- * Met à jour subscription_status = 'active' et le plan pour l'utilisateur connecté
- * Query param optionnel : priceId
+ * Récupère la session Stripe via session_id, déduit le plan depuis le priceId,
+ * puis met à jour subscription_status = 'active' et plan pour l'utilisateur connecté.
+ * Query param requis : session_id
  * Protégée par verifyToken
  */
 router.get('/success', verifyToken, async (req, res) => {
   try {
-    const { priceId } = req.query;
+    const { session_id } = req.query;
+
+    if (!session_id || !session_id.trim()) {
+      return res.status(400).json({ error: 'session_id requis.' });
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+
+    const session = await stripe.checkout.sessions.retrieve(session_id.trim(), {
+      expand: ['line_items'],
+    });
+
+    const priceId = session.line_items?.data?.[0]?.price?.id || null;
     const plan = priceId ? getPlanFromPriceId(priceId) : null;
 
     let result;
