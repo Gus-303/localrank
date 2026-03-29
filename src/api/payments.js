@@ -67,22 +67,51 @@ router.post('/create-checkout', verifyToken, async (req, res) => {
 });
 
 /**
+ * Détermine le plan à partir du priceId Stripe
+ * @param {string} priceId
+ * @returns {string|null}
+ */
+function getPlanFromPriceId(priceId) {
+  const { STRIPE_PRICE_STARTER, STRIPE_PRICE_PRO, STRIPE_PRICE_AGENCY } = process.env;
+  if (priceId === STRIPE_PRICE_STARTER) return 'starter';
+  if (priceId === STRIPE_PRICE_PRO) return 'pro';
+  if (priceId === STRIPE_PRICE_AGENCY) return 'agency';
+  return null;
+}
+
+/**
  * GET /api/payments/success
- * Met à jour subscription_status = 'active' pour l'utilisateur connecté
+ * Met à jour subscription_status = 'active' et le plan pour l'utilisateur connecté
+ * Query param optionnel : priceId
  * Protégée par verifyToken
  */
 router.get('/success', verifyToken, async (req, res) => {
   try {
-    const result = await db.queryOne(
-      'UPDATE users SET subscription_status = $1 WHERE id = $2 RETURNING id, email, subscription_status',
-      ['active', req.user.id]
-    );
+    const { priceId } = req.query;
+    const plan = priceId ? getPlanFromPriceId(priceId) : null;
+
+    let result;
+    if (plan) {
+      result = await db.queryOne(
+        'UPDATE users SET subscription_status = $1, plan = $2 WHERE id = $3 RETURNING id, email, subscription_status, plan',
+        ['active', plan, req.user.id]
+      );
+    } else {
+      result = await db.queryOne(
+        'UPDATE users SET subscription_status = $1 WHERE id = $2 RETURNING id, email, subscription_status, plan',
+        ['active', req.user.id]
+      );
+    }
 
     if (!result) {
       return res.status(404).json({ error: 'Utilisateur introuvable.' });
     }
 
-    res.json({ message: 'Abonnement activé.', subscriptionStatus: result.subscription_status });
+    res.json({
+      message: 'Abonnement activé.',
+      subscriptionStatus: result.subscription_status,
+      plan: result.plan,
+    });
   } catch (error) {
     const isProd = process.env.NODE_ENV === 'production';
     console.error('[success] Error:', error.message);

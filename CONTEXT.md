@@ -55,8 +55,17 @@ localrank/
 - [x] Paiements Stripe (src/api/payments.js)
   - [x] GET /api/payments/prices - retourne les priceIds depuis les variables d'environnement (public)
   - [x] POST /api/payments/create-checkout - crée une session Stripe Checkout (protégée)
-  - [x] GET /api/payments/success - met à jour subscription_status = 'active' (protégée)
+  - [x] GET /api/payments/success - met à jour subscription_status = 'active' ET plan (protégée)
+    - Query param optionnel priceId pour déduire le plan (starter/pro/agency)
 - [x] Dashboard frontend
 - [x] PostgreSQL intégré
 - [x] Configuration Railway (Procfile + railway.json)
 - [x] Routes API de test Anthropic (src/api/ai.js)
+- [x] Système multi-établissements avec limites par plan
+  - [x] Table establishments (src/utils/migrations.js)
+  - [x] Colonne plan dans users (src/utils/migrations.js)
+  - [x] Limites par plan (src/utils/planLimits.js) : free=0, starter=1, pro=3, agency=10
+  - [x] GET /api/establishments - liste les établissements (protégée)
+  - [x] POST /api/establishments - crée un établissement (vérifie limite plan, protégée)
+  - [x] DELETE /api/establishments/:id - supprime (vérifie ownership, protégée)
+  - [x] Section "Mes établissements" dans le dashboard frontend

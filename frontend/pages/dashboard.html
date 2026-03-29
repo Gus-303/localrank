@@ -387,6 +387,110 @@
             display: block;
         }
 
+        .establishments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .establishments-header h2 {
+            margin-bottom: 0;
+        }
+
+        .plan-badge {
+            font-size: 13px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .establishment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: #fafafa;
+        }
+
+        .establishment-info .establishment-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .establishment-info .establishment-type {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .btn-danger {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: white;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .btn-danger:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .add-establishment-form {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .add-establishment-form.visible {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #6c63ff;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+        }
+
         @media (max-width: 768px) {
             header {
                 padding: 15px 20px;
@@ -449,6 +553,43 @@
                     <div class="empty-state-icon">📝</div>
                     Chargement des avis...
                 </div>
+            </div>
+        </div>
+
+        <!-- Section Mes établissements -->
+        <div class="section">
+            <div class="establishments-header">
+                <h2>🏪 Mes établissements</h2>
+                <span class="plan-badge" id="planBadge">Plan free — 0/0</span>
+            </div>
+            <div id="establishmentsList"></div>
+            <button class="btn-primary" id="addEstablishmentBtn" style="display: none;" onclick="toggleAddForm()">
+                + Ajouter un établissement
+            </button>
+            <div class="add-establishment-form" id="addEstablishmentForm">
+                <div class="form-group">
+                    <label for="estabName">Nom de l'établissement *</label>
+                    <input type="text" id="estabName" placeholder="Ex: Boulangerie Dupont" maxlength="255" />
+                </div>
+                <div class="form-group">
+                    <label for="estabType">Type de commerce</label>
+                    <select id="estabType">
+                        <option value="">-- Choisir --</option>
+                        <option value="Restaurant">Restaurant</option>
+                        <option value="Coiffeur">Coiffeur</option>
+                        <option value="Boulangerie">Boulangerie</option>
+                        <option value="Garage">Garage</option>
+                        <option value="Pharmacie">Pharmacie</option>
+                        <option value="Hôtel">Hôtel</option>
+                        <option value="Commerce">Commerce</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-primary" id="submitEstablishmentBtn" onclick="submitEstablishment()">Créer</button>
+                    <button class="btn-secondary" onclick="toggleAddForm()">Annuler</button>
+                </div>
+                <div id="estabError" class="error-message" style="margin-top: 12px;"></div>
             </div>
         </div>
 
@@ -801,12 +942,141 @@
             }
         });
 
+        // --- Établissements ---
+
+        let establishmentData = { establishments: [], plan: 'free', limit: 0, count: 0 };
+
+        async function loadEstablishments() {
+            try {
+                const response = await fetch('/api/establishments', {
+                    headers: getAuthHeaders(),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Impossible de charger les établissements');
+                }
+
+                establishmentData = await response.json();
+                renderEstablishments();
+            } catch (error) {
+                console.error('Erreur établissements:', error);
+                document.getElementById('establishmentsList').innerHTML =
+                    '<div class="empty-state">Erreur lors du chargement.</div>';
+            }
+        }
+
+        function renderEstablishments() {
+            const { establishments, plan, limit, count } = establishmentData;
+
+            document.getElementById('planBadge').textContent =
+                `Plan ${plan} — ${count}/${limit} établissement${limit > 1 ? 's' : ''}`;
+
+            const list = document.getElementById('establishmentsList');
+            if (!establishments || establishments.length === 0) {
+                list.innerHTML = '<div class="empty-state" style="padding: 20px 0 10px;">Aucun établissement ajouté.</div>';
+            } else {
+                list.innerHTML = establishments.map(e => `
+                    <div class="establishment-item">
+                        <div class="establishment-info">
+                            <div class="establishment-name">${escapeHtml(e.name)}</div>
+                            ${e.type ? `<div class="establishment-type">${escapeHtml(e.type)}</div>` : ''}
+                        </div>
+                        <button class="btn-danger" onclick="deleteEstablishment(${e.id})">Supprimer</button>
+                    </div>
+                `).join('');
+            }
+
+            const addBtn = document.getElementById('addEstablishmentBtn');
+            if (count < limit) {
+                addBtn.style.display = 'inline-block';
+            } else {
+                addBtn.style.display = 'none';
+            }
+        }
+
+        function toggleAddForm() {
+            const form = document.getElementById('addEstablishmentForm');
+            form.classList.toggle('visible');
+            if (!form.classList.contains('visible')) {
+                document.getElementById('estabName').value = '';
+                document.getElementById('estabType').value = '';
+                document.getElementById('estabError').classList.remove('show');
+            }
+        }
+
+        async function submitEstablishment() {
+            const name = document.getElementById('estabName').value.trim();
+            const type = document.getElementById('estabType').value;
+            const errorEl = document.getElementById('estabError');
+            const submitBtn = document.getElementById('submitEstablishmentBtn');
+
+            errorEl.classList.remove('show');
+
+            if (!name) {
+                errorEl.textContent = 'Le nom est requis.';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Création...';
+
+            try {
+                const response = await fetch('/api/establishments', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ name, type: type || undefined }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorEl.textContent = data.error || 'Erreur lors de la création.';
+                    errorEl.classList.add('show');
+                    return;
+                }
+
+                toggleAddForm();
+                await loadEstablishments();
+            } catch (error) {
+                errorEl.textContent = 'Erreur réseau. Réessayez.';
+                errorEl.classList.add('show');
+                console.error('Erreur:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Créer';
+            }
+        }
+
+        async function deleteEstablishment(id) {
+            if (!confirm('Supprimer cet établissement ?')) return;
+
+            try {
+                const response = await fetch(`/api/establishments/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders(),
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    alert(data.error || 'Erreur lors de la suppression.');
+                    return;
+                }
+
+                await loadEstablishments();
+            } catch (error) {
+                alert('Erreur réseau. Réessayez.');
+                console.error('Erreur:', error);
+            }
+        }
+
         // Charger les données au démarrage
         window.addEventListener('load', () => {
             initGoogleButton();
             loadGoogleScore();
             loadReviews();
             loadPosts();
+            loadEstablishments();
         });
 
         // Rafraîchir les données toutes les 30 secondes
@@ -814,6 +1084,7 @@
             loadGoogleScore();
             loadReviews();
             loadPosts();
+            loadEstablishments();
         }, 30000);
     </script>
 </body>

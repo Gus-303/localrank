@@ -51,6 +51,47 @@ async function addGoogleOAuthColumns() {
 }
 
 /**
+ * Ajoute la colonne plan dans users si elle n'existe pas
+ */
+async function addPlanColumn() {
+  try {
+    await db.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS plan VARCHAR(50) DEFAULT 'free';
+    `);
+    console.log('[Migrations] ✓ Plan column added or already exists');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to add plan column:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Crée la table establishments si elle n'existe pas
+ */
+async function createEstablishmentsTable() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS establishments (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        type VARCHAR(100),
+        google_account_id VARCHAR(255),
+        google_location_id VARCHAR(255),
+        google_access_token TEXT,
+        google_refresh_token TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('[Migrations] ✓ Establishments table created or already exists');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to create establishments table:', error.message);
+    throw error;
+  }
+}
+
+/**
  * Exécute toutes les migrations
  * À appeler au démarrage de l'application
  */
@@ -69,6 +110,12 @@ async function runMigrations() {
 
     // Ajouter les colonnes Google OAuth
     await addGoogleOAuthColumns();
+
+    // Ajouter la colonne plan
+    await addPlanColumn();
+
+    // Créer la table establishments
+    await createEstablishmentsTable();
 
     console.log('[Migrations] ✓ All migrations completed successfully');
     return true;
