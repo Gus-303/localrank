@@ -52,7 +52,10 @@ localrank/
   - [x] GET /api/google/reviews - Récupère les avis (protégée)
   - [x] Colonnes google_access_token et google_refresh_token ajoutées
 - [x] Génération IA des réponses et posts
-- [x] Paiements Stripe
+- [x] Paiements Stripe (src/api/payments.js)
+  - [x] GET /api/payments/prices - retourne les priceIds depuis les variables d'environnement (public)
+  - [x] POST /api/payments/create-checkout - crée une session Stripe Checkout (protégée)
+  - [x] GET /api/payments/success - met à jour subscription_status = 'active' (protégée)
 - [x] Dashboard frontend
 - [x] PostgreSQL intégré
 - [x] Configuration Railway (Procfile + railway.json)

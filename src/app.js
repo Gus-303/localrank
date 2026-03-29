@@ -3,6 +3,7 @@ const express = require('express');
 const authRouter = require('./api/auth');
 const aiRouter = require('./api/ai');
 const googleAuthRouter = require('./api/google-auth');
+const paymentsRouter = require('./api/payments');
 const { runMigrations } = require('./utils/migrations');
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(express.static('frontend'));
 app.use('/api/auth', authRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/google', googleAuthRouter);
+app.use('/api/payments', paymentsRouter);
 
 // Error handler middleware
 app.use((err, req, res, next) => {

@@ -548,7 +548,7 @@
                         <li>Tableau de bord de suivi</li>
                         <li>Support par e-mail</li>
                     </ul>
-                    <a href="/pages/register.html" class="btn-outline-full">Commencer</a>
+                    <button class="btn-outline-full" onclick="startCheckout('starter')">Commencer</button>
                 </div>
 
                 <!-- Pro -->
@@ -564,7 +564,7 @@
                         <li>Tableau de bord de suivi avancé</li>
                         <li>Support prioritaire</li>
                     </ul>
-                    <a href="/pages/register.html" class="btn btn-primary btn-lg plan-cta">Commencer</a>
+                    <button class="btn btn-primary btn-lg plan-cta" onclick="startCheckout('pro')">Commencer</button>
                 </div>
 
                 <!-- Agency -->
@@ -579,12 +579,56 @@
                         <li>Tableau de bord multi-établissements</li>
                         <li>Support dédié</li>
                     </ul>
-                    <a href="/pages/register.html" class="btn-outline-full">Commencer</a>
+                    <button class="btn-outline-full" onclick="startCheckout('agency')">Commencer</button>
                 </div>
 
             </div>
         </div>
     </section>
+
+    <script>
+        async function startCheckout(plan) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/pages/register.html';
+                return;
+            }
+
+            try {
+                // Récupérer les priceIds depuis le backend
+                const pricesRes = await fetch('/api/payments/prices');
+                if (!pricesRes.ok) throw new Error('Impossible de récupérer les prix.');
+                const prices = await pricesRes.json();
+
+                const priceId = prices[plan];
+                if (!priceId) throw new Error('Plan inconnu : ' + plan);
+
+                // Créer la session de paiement
+                const res = await fetch('/api/payments/create-checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token,
+                    },
+                    body: JSON.stringify({ priceId }),
+                });
+
+                if (res.status === 401) {
+                    // Token expiré ou invalide
+                    localStorage.removeItem('token');
+                    window.location.href = '/pages/login.html';
+                    return;
+                }
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erreur lors du paiement.');
+
+                window.location.href = data.checkoutUrl;
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+    </script>
 
     <!-- ─── FOOTER ──────────────────────────────────────── -->
     <footer>
