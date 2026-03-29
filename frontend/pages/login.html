@@ -201,6 +201,35 @@
     </div>
 
     <script>
+        async function redirectToCheckout(plan, token) {
+            try {
+                const pricesRes = await fetch('/api/payments/prices');
+                if (!pricesRes.ok) throw new Error('Impossible de récupérer les prix.');
+                const prices = await pricesRes.json();
+
+                const priceId = prices[plan];
+                if (!priceId) throw new Error('Plan inconnu : ' + plan);
+
+                const res = await fetch('/api/payments/create-checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token,
+                    },
+                    body: JSON.stringify({ priceId }),
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erreur lors du paiement.');
+
+                window.location.href = data.checkoutUrl;
+            } catch (err) {
+                formError.textContent = err.message;
+                formError.style.display = 'block';
+                window.location.href = '/pages/dashboard.html';
+            }
+        }
+
         const form = document.getElementById('loginForm');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
@@ -282,8 +311,13 @@
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
-                // Rediriger vers le dashboard
-                window.location.href = 'dashboard.html';
+                // Si un plan est passé en paramètre, lancer Stripe Checkout
+                const plan = new URLSearchParams(window.location.search).get('plan');
+                if (plan) {
+                    await redirectToCheckout(plan, data.token);
+                } else {
+                    window.location.href = '/pages/dashboard.html';
+                }
             } catch (error) {
                 formError.textContent = 'Erreur réseau. Veuillez réessayer.';
                 formError.style.display = 'block';

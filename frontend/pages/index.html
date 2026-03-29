@@ -590,7 +590,7 @@
         async function startCheckout(plan) {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = '/pages/register.html';
+                window.location.href = '/pages/register.html?plan=' + plan;
                 return;
             }
 
