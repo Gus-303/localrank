@@ -6,6 +6,7 @@ const googleAuthRouter = require('./api/google-auth');
 const paymentsRouter = require('./api/payments');
 const establishmentsRouter = require('./api/establishments');
 const { runMigrations } = require('./utils/migrations');
+const { initCron } = require('./services/cron');
 
 const app = express();
 
@@ -56,6 +57,7 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`✓ LocalRank server running on port ${PORT}`);
       console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
+      initCron();
     });
   } catch (error) {
     console.error('✗ Failed to start server:', error.message);
