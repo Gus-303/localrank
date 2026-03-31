@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(grep -A 20 '\"\"jest\"\"' package.json)"
+    ]
+  }
+}

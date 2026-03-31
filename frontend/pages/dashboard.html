@@ -1070,8 +1070,29 @@
             }
         }
 
+        async function handlePaymentSuccess() {
+            const params = new URLSearchParams(window.location.search);
+            const sessionId = params.get('session_id');
+            const success = params.get('success');
+            if (!success || !sessionId) return;
+            try {
+                const response = await fetch(/api/payments/success?session_id=, {
+                    headers: getAuthHeaders(),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(Abonnement activé ! Plan : );
+                    window.history.replaceState({}, '', '/pages/dashboard.html');
+                } else {
+                    console.error('Erreur activation plan:', data.error);
+                }
+            } catch (error) {
+                console.error('Erreur réseau paiement:', error);
+            }
+        }
         // Charger les donnÃ©es au dÃ©marrage
         window.addEventListener('load', () => {
+            handlePaymentSuccess();
             initGoogleButton();
             loadGoogleScore();
             loadReviews();
