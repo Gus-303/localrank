@@ -90,6 +90,9 @@ router.get('/success', verifyToken, async (req, res) => {
   try {
     const { session_id } = req.query;
 
+    // [DEBUG] Confirmer que verifyToken a bien décodé l'utilisateur
+    console.log('[DEBUG][/success] req.user :', req.user);
+
     if (!session_id || !session_id.trim()) {
       return res.status(400).json({ error: 'session_id requis.' });
     }
@@ -100,8 +103,15 @@ router.get('/success', verifyToken, async (req, res) => {
       expand: ['line_items'],
     });
 
+    // [DEBUG] Inspecter ce que Stripe retourne
+    console.log('[DEBUG][/success] session.payment_status :', session.payment_status);
+    console.log('[DEBUG][/success] session.line_items :', JSON.stringify(session.line_items));
+
     const priceId = session.line_items?.data?.[0]?.price?.id || null;
     const plan = priceId ? getPlanFromPriceId(priceId) : null;
+
+    // [DEBUG] Résultat de la déduction du plan
+    console.log('[DEBUG][/success] priceId :', priceId, '→ plan :', plan);
 
     let result;
     if (plan) {

@@ -1075,19 +1075,31 @@
             const sessionId = params.get('session_id');
             const success = params.get('success');
             if (!success || !sessionId) return;
+
+            // [DEBUG] Vérifier la présence du token
+            const token = localStorage.getItem('token');
+            console.log('[DEBUG][handlePaymentSuccess] token présent :', !!token);
+            console.log('[DEBUG][handlePaymentSuccess] session_id :', sessionId);
+
             try {
                 const response = await fetch('/api/payments/success?session_id=' + sessionId, {
                     headers: getAuthHeaders(),
                 });
+
+                console.log('[DEBUG][handlePaymentSuccess] HTTP status :', response.status);
+
                 const data = await response.json();
+                console.log('[DEBUG][handlePaymentSuccess] réponse API :', data);
+
                 if (response.ok) {
                     alert('Abonnement activé ! Plan : ' + data.plan);
                     window.history.replaceState({}, '', '/pages/dashboard.html');
+                    await loadEstablishments();
                 } else {
-                    console.error('Erreur activation plan:', data.error);
+                    console.error('[DEBUG][handlePaymentSuccess] Erreur activation plan:', data.error);
                 }
             } catch (error) {
-                console.error('Erreur réseau paiement:', error);
+                console.error('[DEBUG][handlePaymentSuccess] Erreur réseau paiement:', error);
             }
         }
         // Charger les donnÃ©es au dÃ©marrage

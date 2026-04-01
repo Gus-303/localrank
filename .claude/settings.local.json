@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npm test:*)",
       "Bash(grep -A 20 '\"\"jest\"\"' package.json)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(python:*)",
+      "Bash(node:*)"
     ]
   }
 }
