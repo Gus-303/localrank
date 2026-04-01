@@ -134,4 +134,125 @@ router.get('/success', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * Retrouve un utilisateur par email dans la DB.
+ * @param {string} email
+ * @returns {Promise<object|null>}
+ */
+async function findUserByEmail(email) {
+  if (!email) return null;
+  return db.queryOne('SELECT id, email FROM users WHERE email = $1', [email]);
+}
+
+/**
+ * POST /api/payments/webhook
+ * Reçoit les événements Stripe en temps réel.
+ * Route non protégée par verifyToken — Stripe envoie directement.
+ * Requiert express.raw() en amont (configuré dans app.js).
+ */
+router.post('/webhook', async (req, res) => {
+  const isProd = process.env.NODE_ENV === 'production';
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    console.error('[webhook] STRIPE_WEBHOOK_SECRET non configuré');
+    return res.status(500).json({ error: 'Configuration webhook manquante.' });
+  }
+
+  let event;
+  try {
+    event = Stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+  } catch (err) {
+    console.error('[webhook] Signature invalide:', err.message);
+    return res.status(400).json({ error: 'Signature webhook invalide.' });
+  }
+
+  const eventType = event.type;
+  const data = event.data.object;
+  console.log(`[webhook] Événement reçu: ${eventType}`);
+
+  try {
+    switch (eventType) {
+
+      case 'checkout.session.completed': {
+        const userId = data.client_reference_id;
+        if (!userId) {
+          console.error('[webhook] checkout.session.completed: client_reference_id manquant');
+          break;
+        }
+        const priceId = data.line_items?.data?.[0]?.price?.id || null;
+        const plan = priceId ? getPlanFromPriceId(priceId) : null;
+
+        if (plan) {
+          await db.queryOne(
+            'UPDATE users SET subscription_status = $1, plan = $2 WHERE id = $3 RETURNING id',
+            ['active', plan, parseInt(userId, 10)]
+          );
+        } else {
+          await db.queryOne(
+            'UPDATE users SET subscription_status = $1 WHERE id = $2 RETURNING id',
+            ['active', parseInt(userId, 10)]
+          );
+        }
+        console.log(`[webhook] Utilisateur #${userId} activé (plan: ${plan || 'inchangé'})`);
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+        const customer = await stripe.customers.retrieve(data.customer);
+        const user = await findUserByEmail(customer.email);
+        if (!user) {
+          console.error(`[webhook] customer.subscription.deleted: utilisateur introuvable pour ${customer.email}`);
+          break;
+        }
+        await db.queryOne(
+          'UPDATE users SET subscription_status = $1, plan = $2 WHERE id = $3 RETURNING id',
+          ['canceled', 'free', user.id]
+        );
+        console.log(`[webhook] Abonnement annulé — utilisateur #${user.id}`);
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const user = await findUserByEmail(data.customer_email);
+        if (!user) {
+          console.error(`[webhook] invoice.payment_failed: utilisateur introuvable pour ${data.customer_email}`);
+          break;
+        }
+        await db.queryOne(
+          'UPDATE users SET subscription_status = $1 WHERE id = $2 RETURNING id',
+          ['past_due', user.id]
+        );
+        console.log(`[webhook] Paiement échoué — utilisateur #${user.id}`);
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const user = await findUserByEmail(data.customer_email);
+        if (!user) {
+          console.error(`[webhook] invoice.payment_succeeded: utilisateur introuvable pour ${data.customer_email}`);
+          break;
+        }
+        await db.queryOne(
+          'UPDATE users SET subscription_status = $1 WHERE id = $2 RETURNING id',
+          ['active', user.id]
+        );
+        console.log(`[webhook] Paiement réussi — utilisateur #${user.id}`);
+        break;
+      }
+
+      default:
+        console.log(`[webhook] Événement ignoré: ${eventType}`);
+    }
+  } catch (error) {
+    console.error(`[webhook] Erreur traitement ${eventType}:`, error.message);
+    // On répond 200 quand même : Stripe ne doit pas retenter pour une erreur interne
+  }
+
+  // Toujours répondre 200 à Stripe pour accuser réception
+  res.json({ received: true });
+});
+
 module.exports = router;

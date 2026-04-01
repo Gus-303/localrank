@@ -12,6 +12,9 @@ const reportsRouter = require('./api/reports');
 
 const app = express();
 
+// Body brut requis par Stripe pour la vérification de signature — AVANT express.json()
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
