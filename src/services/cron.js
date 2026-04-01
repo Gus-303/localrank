@@ -84,4 +84,4 @@ function initCron() {
   console.log('[CRON] ✓ Job posts hebdomadaires planifié (lundi 9h)');
 }
 
-module.exports = { initCron };
+module.exports = { initCron, runWeeklyPostsJob };

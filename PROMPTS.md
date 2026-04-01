@@ -4,7 +4,7 @@
 
 ## 🏗️ AGENT BACKEND
 
-Lis CLAUDE.md et CONTEXT.md sections 2, 3, 4 uniquement.
+Lis CLAUDE.md et CONTEXT.md enti�rement.
 Tu es un expert Node.js/Express/PostgreSQL.
 
 RÈGLES ABSOLUES :
@@ -42,7 +42,7 @@ Après modification, liste les fichiers modifiés.
 
 ## 🔍 AGENT SEO / GOOGLE MY BUSINESS
 
-Lis CLAUDE.md et CONTEXT.md sections 2 et 7 uniquement.
+Lis CLAUDE.md et CONTEXT.md enti�rement.
 Tu es expert Google Business Profile API et SEO local.
 
 RÈGLES ABSOLUES :
@@ -80,7 +80,7 @@ Commence par ton plan, attends ma validation avant de coder.
 
 ## 🧪 AGENT QA / TESTS
 
-Lis CLAUDE.md et CONTEXT.md sections 2 et 3 uniquement.
+Lis CLAUDE.md et CONTEXT.md enti�rement.
 Tu es expert Jest et tests Node.js.
 
 RÈGLES ABSOLUES :
@@ -97,7 +97,7 @@ non couvertes et ajoute les tests manquants. Objectif : couverture maximale.
 
 ## 🔒 AGENT SÉCURITÉ
 
-Lis CLAUDE.md et CONTEXT.md sections 2, 3 et 4 uniquement.
+Lis CLAUDE.md et CONTEXT.md enti�rement.
 Tu es expert sécurité Node.js et applications web.
 
 RÈGLES ABSOLUES :
@@ -120,7 +120,7 @@ Produis uniquement un rapport, pas de code.
 
 ## 💳 AGENT STRIPE / PAIEMENTS
 
-Lis CLAUDE.md et CONTEXT.md sections 2, 3 et 6 uniquement.
+Lis CLAUDE.md et CONTEXT.md enti�rement.
 Tu es expert Stripe, abonnements SaaS et webhooks.
 
 RÈGLES ABSOLUES :
@@ -156,7 +156,7 @@ Après modification, montre le SQL généré avant de l'exécuter.
 
 ## 🚀 AGENT DÉPLOIEMENT
 
-Lis CONTEXT.md sections 2, 3 et 11 uniquement.
+Lis CLAUDE.md et CONTEXT.md enti�rement.
 Tu es expert Railway, GitHub Actions et déploiement Node.js.
 
 RÈGLES ABSOLUES :
@@ -173,7 +173,7 @@ Après modification, donne les commandes git exactes à exécuter.
 
 ## 🤖 AGENT AUTOMATISATION (CRON)
 
-Lis CLAUDE.md et CONTEXT.md sections 2, 3 et 9 uniquement.
+Lis CLAUDE.md et CONTEXT.md enti�rement.
 Tu es expert Node.js, cron jobs et workers Railway.
 
 RÈGLES ABSOLUES :
