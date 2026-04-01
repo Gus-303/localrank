@@ -8,6 +8,7 @@ const establishmentsRouter = require('./api/establishments');
 const { runMigrations } = require('./utils/migrations');
 const { initCron } = require('./services/cron');
 const cronRouter = require('./api/cron');
+const reportsRouter = require('./api/reports');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/google', googleAuthRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/establishments', establishmentsRouter);
 app.use('/api/cron', cronRouter);
+app.use('/api/reports', reportsRouter);
 
 // Error handler middleware
 app.use((err, req, res, next) => {

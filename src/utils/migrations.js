@@ -92,6 +92,29 @@ async function createEstablishmentsTable() {
 }
 
 /**
+ * Crée la table reviews si elle n'existe pas
+ */
+async function createReviewsTable() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS reviews (
+        id SERIAL PRIMARY KEY,
+        establishment_id INTEGER REFERENCES establishments(id) ON DELETE CASCADE,
+        author VARCHAR(255),
+        rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+        comment TEXT,
+        ai_response TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('[Migrations] ✓ Reviews table created or already exists');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to create reviews table:', error.message);
+    throw error;
+  }
+}
+
+/**
  * Exécute toutes les migrations
  * À appeler au démarrage de l'application
  */
@@ -116,6 +139,9 @@ async function runMigrations() {
 
     // Créer la table establishments
     await createEstablishmentsTable();
+
+    // Créer la table reviews
+    await createReviewsTable();
 
     console.log('[Migrations] ✓ All migrations completed successfully');
     return true;
