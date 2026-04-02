@@ -81,17 +81,15 @@ function getPlanFromPriceId(priceId) {
 
 /**
  * GET /api/payments/success
- * Récupère la session Stripe via session_id, déduit le plan depuis le priceId,
- * puis met à jour subscription_status = 'active' et plan pour l'utilisateur connecté.
+ * Récupère la session Stripe via session_id, identifie l'utilisateur via
+ * client_reference_id (ou customer_email en fallback), déduit le plan depuis
+ * le priceId, puis met à jour subscription_status = 'active' et plan.
  * Query param requis : session_id
  * Protégée par verifyToken
  */
 router.get('/success', verifyToken, async (req, res) => {
   try {
     const { session_id } = req.query;
-
-    // [DEBUG] Confirmer que verifyToken a bien décodé l'utilisateur
-    console.log('[DEBUG][/success] req.user :', req.user);
 
     if (!session_id || !session_id.trim()) {
       return res.status(400).json({ error: 'session_id requis.' });
@@ -103,26 +101,37 @@ router.get('/success', verifyToken, async (req, res) => {
       expand: ['line_items'],
     });
 
-    // [DEBUG] Inspecter ce que Stripe retourne
-    console.log('[DEBUG][/success] session.payment_status :', session.payment_status);
-    console.log('[DEBUG][/success] session.line_items :', JSON.stringify(session.line_items));
+    // Étape 1 : identifier l'utilisateur via client_reference_id
+    let userId = null;
+    const refId = parseInt(session.client_reference_id, 10);
+    if (!isNaN(refId)) {
+      const found = await db.queryOne('SELECT id FROM users WHERE id = $1', [refId]);
+      if (found) userId = found.id;
+    }
+
+    // Étape 2 : fallback sur l'email du customer Stripe
+    if (!userId && session.customer_email) {
+      const found = await findUserByEmail(session.customer_email);
+      if (found) userId = found.id;
+    }
+
+    if (!userId) {
+      return res.status(404).json({ error: 'Utilisateur introuvable.' });
+    }
 
     const priceId = session.line_items?.data?.[0]?.price?.id || null;
     const plan = priceId ? getPlanFromPriceId(priceId) : null;
-
-    // [DEBUG] Résultat de la déduction du plan
-    console.log('[DEBUG][/success] priceId :', priceId, '→ plan :', plan);
 
     let result;
     if (plan) {
       result = await db.queryOne(
         'UPDATE users SET subscription_status = $1, plan = $2 WHERE id = $3 RETURNING id, email, subscription_status, plan',
-        ['active', plan, req.user.id]
+        ['active', plan, userId]
       );
     } else {
       result = await db.queryOne(
         'UPDATE users SET subscription_status = $1 WHERE id = $2 RETURNING id, email, subscription_status, plan',
-        ['active', req.user.id]
+        ['active', userId]
       );
     }
 
