@@ -585,6 +585,20 @@
             box-shadow: none !important;
         }
 
+        .plan-unavailable-badge {
+            display: inline-block;
+            background: #e0e0e0;
+            color: #999;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 8px;
+        }
+
         @media (max-width: 768px) {
             header {
                 padding: 15px 20px;
@@ -698,6 +712,7 @@
                     <div class="plan-limit">1 établissement</div>
                     <button class="btn-primary" id="btnUpgradeStarter" onclick="upgradePlan('starter')">Passer à Starter</button>
                     <div class="plan-current-badge" id="currentStarter" style="display:none;">Plan actuel</div>
+                    <div class="plan-unavailable-badge" id="unavailableStarter" style="display:none;">Non disponible</div>
                 </div>
                 <div class="plan-card recommended" id="planPro">
                     <span class="badge-recommended">Recommandé</span>
@@ -706,6 +721,7 @@
                     <div class="plan-limit">3 établissements</div>
                     <button class="btn-primary" id="btnUpgradePro" onclick="upgradePlan('pro')">Passer à Pro</button>
                     <div class="plan-current-badge" id="currentPro" style="display:none;">Plan actuel</div>
+                    <div class="plan-unavailable-badge" id="unavailablePro" style="display:none;">Non disponible</div>
                 </div>
             </div>
         </div>
@@ -1212,24 +1228,43 @@
             statusEl.innerHTML = `<span style="color:${statusColor}; font-weight:600;">● ${statusLabel}</span>`
                 + ` — Plan actuel : <strong>${escapeHtml(currentPlan || 'free')}</strong>`;
 
+            // Hiérarchie des plans : index plus élevé = plan supérieur
+            const PLAN_RANK = { free: 0, starter: 1, pro: 2 };
+            const normalizedCurrent = (currentPlan || 'free').toLowerCase();
+            const currentRank = PLAN_RANK[normalizedCurrent] ?? 0;
+
             const plans = ['Starter', 'Pro'];
             plans.forEach(p => {
                 const key = p.toLowerCase();
-                const isCurrent = (currentPlan || '').toLowerCase() === key;
+                const cardRank = PLAN_RANK[key];
+                const isCurrent = currentRank === cardRank;
+                const isDowngrade = cardRank < currentRank;
+
                 const btn = document.getElementById('btnUpgrade' + p);
-                const badge = document.getElementById('current' + p);
+                const badgeCurrent = document.getElementById('current' + p);
+                const badgeUnavailable = document.getElementById('unavailable' + p);
                 const card = document.getElementById('plan' + p);
 
-                // Bouton toujours visible : actif si pas le plan actuel, désactivé grisé sinon
-                btn.disabled = isCurrent;
-                btn.style.display = 'inline-block';
-
-                // Badge "Plan actuel" affiché uniquement sur le plan en cours
-                badge.style.display = isCurrent ? 'block' : 'none';
-
                 if (isCurrent) {
+                    // Plan actuel : bouton désactivé + badge "Plan actuel"
+                    btn.disabled = true;
+                    btn.style.display = 'inline-block';
+                    badgeCurrent.style.display = 'block';
+                    badgeUnavailable.style.display = 'none';
                     card.classList.add('current');
+                } else if (isDowngrade) {
+                    // Plan inférieur : bouton caché + badge "Non disponible"
+                    btn.disabled = true;
+                    btn.style.display = 'none';
+                    badgeCurrent.style.display = 'none';
+                    badgeUnavailable.style.display = 'block';
+                    card.classList.remove('current');
                 } else {
+                    // Plan supérieur : bouton upgrade actif
+                    btn.disabled = false;
+                    btn.style.display = 'inline-block';
+                    badgeCurrent.style.display = 'none';
+                    badgeUnavailable.style.display = 'none';
                     card.classList.remove('current');
                 }
             });
