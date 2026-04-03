@@ -69,3 +69,11 @@ localrank/
   - [x] POST /api/establishments - crée un établissement (vérifie limite plan, protégée)
   - [x] DELETE /api/establishments/:id - supprime (vérifie ownership, protégée)
   - [x] Section "Mes établissements" dans le dashboard frontend
+
+## 8. BUGS RÉSOLUS
+- ✅ Plan pas mis à jour après paiement Stripe
+
+## 9. NOTES TECHNIQUES
+- La `DATABASE_URL` pointait vers une ancienne base de données, ce qui empêchait
+  la mise à jour du plan après paiement Stripe. Résolu en corrigeant la variable
+  d'environnement pour pointer vers la bonne DB.

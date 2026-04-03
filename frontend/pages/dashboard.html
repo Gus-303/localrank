@@ -491,6 +491,92 @@
             gap: 10px;
         }
 
+        /* Abonnement */
+        .subscription-status {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .plan-cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .plan-card {
+            flex: 1;
+            min-width: 200px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .plan-card.current {
+            border-color: #6c63ff;
+            background: #f9f8ff;
+        }
+
+        .plan-card.recommended {
+            border-color: #6c63ff;
+        }
+
+        .badge-recommended {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #6c63ff;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .plan-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .plan-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #6c63ff;
+            margin-bottom: 8px;
+        }
+
+        .plan-price span {
+            font-size: 14px;
+            font-weight: 400;
+            color: #999;
+        }
+
+        .plan-limit {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .plan-current-badge {
+            display: inline-block;
+            background: #6c63ff;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
         @media (max-width: 768px) {
             header {
                 padding: 15px 20px;
@@ -590,6 +676,29 @@
                     <button class="btn-secondary" onclick="toggleAddForm()">Annuler</button>
                 </div>
                 <div id="estabError" class="error-message" style="margin-top: 12px;"></div>
+            </div>
+        </div>
+
+        <!-- Section Abonnement -->
+        <div class="section">
+            <h2>💳 Mon abonnement</h2>
+            <div id="subscriptionStatus" class="subscription-status"></div>
+            <div class="plan-cards">
+                <div class="plan-card" id="planStarter">
+                    <h3>Starter</h3>
+                    <div class="plan-price">29€<span>/mois</span></div>
+                    <div class="plan-limit">1 établissement</div>
+                    <button class="btn-primary" id="btnUpgradeStarter" onclick="upgradePlan('starter')">Passer à Starter</button>
+                    <div class="plan-current-badge" id="currentStarter" style="display:none;">Plan actuel</div>
+                </div>
+                <div class="plan-card recommended" id="planPro">
+                    <span class="badge-recommended">Recommandé</span>
+                    <h3>Pro</h3>
+                    <div class="plan-price">69€<span>/mois</span></div>
+                    <div class="plan-limit">3 établissements</div>
+                    <button class="btn-primary" id="btnUpgradePro" onclick="upgradePlan('pro')">Passer à Pro</button>
+                    <div class="plan-current-badge" id="currentPro" style="display:none;">Plan actuel</div>
+                </div>
             </div>
         </div>
 
@@ -1070,15 +1179,82 @@
             }
         }
 
+        // --- Abonnement ---
+
+        async function loadSubscription() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: getAuthHeaders(),
+                });
+                if (!response.ok) throw new Error('Impossible de charger les infos utilisateur');
+                const data = await response.json();
+                // subscriptionStatus vient de /api/auth/me, plan vient de establishmentData
+                renderSubscription(establishmentData.plan, data.user.subscriptionStatus);
+            } catch (error) {
+                console.error('Erreur abonnement:', error);
+            }
+        }
+
+        function renderSubscription(currentPlan, status) {
+            const statusEl = document.getElementById('subscriptionStatus');
+            const statusLabel = status === 'active' ? 'Actif'
+                : status === 'past_due' ? 'Paiement en retard'
+                : 'Inactif';
+            const statusColor = status === 'active' ? '#27ae60' : '#e74c3c';
+            statusEl.innerHTML = `<span style="color:${statusColor}; font-weight:600;">● ${statusLabel}</span>`
+                + ` — Plan actuel : <strong>${escapeHtml(currentPlan || 'free')}</strong>`;
+
+            const plans = ['Starter', 'Pro'];
+            plans.forEach(p => {
+                const key = p.toLowerCase();
+                const isCurrent = currentPlan === key;
+                document.getElementById('btnUpgrade' + p).style.display = isCurrent ? 'none' : 'inline-block';
+                document.getElementById('current' + p).style.display = isCurrent ? 'block' : 'none';
+                if (isCurrent) {
+                    document.getElementById('plan' + p).classList.add('current');
+                } else {
+                    document.getElementById('plan' + p).classList.remove('current');
+                }
+            });
+        }
+
+        async function upgradePlan(planKey) {
+            try {
+                const pricesRes = await fetch('/api/payments/prices');
+                if (!pricesRes.ok) throw new Error('Impossible de récupérer les prix');
+                const prices = await pricesRes.json();
+
+                const priceId = prices[planKey];
+                if (!priceId) throw new Error('Plan introuvable');
+
+                const checkoutRes = await fetch('/api/payments/create-checkout', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ priceId }),
+                });
+
+                if (!checkoutRes.ok) {
+                    const err = await checkoutRes.json();
+                    throw new Error(err.error || 'Erreur lors de la création du paiement');
+                }
+
+                const { checkoutUrl } = await checkoutRes.json();
+                window.location.href = checkoutUrl;
+            } catch (error) {
+                alert('Erreur : ' + error.message);
+                console.error('Erreur upgrade:', error);
+            }
+        }
+
         async function handlePaymentSuccess() {
             const params = new URLSearchParams(window.location.search);
             const sessionId = params.get('session_id');
             const success = params.get('success');
             if (!success || !sessionId) return;
 
-            // [DEBUG] V�rifier la pr�sence du token
+            // [DEBUG] V�rifier la pr�sence du token
             const token = localStorage.getItem('token');
-            console.log('[DEBUG][handlePaymentSuccess] token pr�sent :', !!token);
+            console.log('[DEBUG][handlePaymentSuccess] token pr�sent :', !!token);
             console.log('[DEBUG][handlePaymentSuccess] session_id :', sessionId);
 
             try {
@@ -1089,27 +1265,28 @@
                 console.log('[DEBUG][handlePaymentSuccess] HTTP status :', response.status);
 
                 const data = await response.json();
-                console.log('[DEBUG][handlePaymentSuccess] r�ponse API :', data);
+                console.log('[DEBUG][handlePaymentSuccess] r�ponse API :', data);
 
                 if (response.ok) {
-                    alert('Abonnement activ� ! Plan : ' + data.plan);
+                    alert('Abonnement activ� ! Plan : ' + data.plan);
                     window.history.replaceState({}, '', '/pages/dashboard.html');
                     await loadEstablishments();
                 } else {
                     console.error('[DEBUG][handlePaymentSuccess] Erreur activation plan:', data.error);
                 }
             } catch (error) {
-                console.error('[DEBUG][handlePaymentSuccess] Erreur r�seau paiement:', error);
+                console.error('[DEBUG][handlePaymentSuccess] Erreur r�seau paiement:', error);
             }
         }
         // Charger les données au démarrage
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
             handlePaymentSuccess();
             initGoogleButton();
             loadGoogleScore();
             loadReviews();
             loadPosts();
-            loadEstablishments();
+            await loadEstablishments();
+            loadSubscription();
         });
 
         // Rafraîchir les données toutes les 30 secondes
