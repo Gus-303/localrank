@@ -575,6 +575,14 @@
             text-align: center;
             width: 100%;
             box-sizing: border-box;
+            margin-top: 8px;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         @media (max-width: 768px) {
@@ -1208,12 +1216,21 @@
             plans.forEach(p => {
                 const key = p.toLowerCase();
                 const isCurrent = currentPlan === key;
-                document.getElementById('btnUpgrade' + p).style.display = isCurrent ? 'none' : 'inline-block';
-                document.getElementById('current' + p).style.display = isCurrent ? 'block' : 'none';
+                const btn = document.getElementById('btnUpgrade' + p);
+                const badge = document.getElementById('current' + p);
+                const card = document.getElementById('plan' + p);
+
+                // Bouton toujours visible : actif si pas le plan actuel, désactivé grisé sinon
+                btn.disabled = isCurrent;
+                btn.style.display = 'inline-block';
+
+                // Badge "Plan actuel" affiché uniquement sur le plan en cours
+                badge.style.display = isCurrent ? 'block' : 'none';
+
                 if (isCurrent) {
-                    document.getElementById('plan' + p).classList.add('current');
+                    card.classList.add('current');
                 } else {
-                    document.getElementById('plan' + p).classList.remove('current');
+                    card.classList.remove('current');
                 }
             });
         }
