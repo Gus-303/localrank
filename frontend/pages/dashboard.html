@@ -1215,7 +1215,7 @@
             const plans = ['Starter', 'Pro'];
             plans.forEach(p => {
                 const key = p.toLowerCase();
-                const isCurrent = currentPlan === key;
+                const isCurrent = (currentPlan || '').toLowerCase() === key;
                 const btn = document.getElementById('btnUpgrade' + p);
                 const badge = document.getElementById('current' + p);
                 const card = document.getElementById('plan' + p);
