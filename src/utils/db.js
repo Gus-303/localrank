@@ -19,6 +19,10 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
+pool.query('SELECT current_database(), current_schema()').then(r => {
+  console.log('[DB INFO]', r.rows[0]);
+}).catch(e => console.error('[DB INFO ERROR]', e.message));
+
 // Gérer les erreurs de connexion
 pool.on('error', (error) => {
   console.error('[Database] Pool error:', error.message);
