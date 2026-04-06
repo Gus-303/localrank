@@ -107,10 +107,16 @@ class User {
       const salt = 10;
       const hashedPassword = await bcrypt.hash(plainPassword, salt);
 
-      const result = await db.queryOne(
+      const rawResult = await db.query(
         'INSERT INTO users (email, password, business_name, subscription_status) VALUES ($1, $2, $3, $4) RETURNING id, email, business_name, subscription_status, created_at',
         [email, hashedPassword, businessName, 'free']
       );
+
+      console.log('[User.create] Résultat INSERT:', JSON.stringify(rawResult));
+      console.log('[User.create] Rows affectées:', rawResult?.rowCount);
+      console.log('[User.create] Données retournées:', rawResult?.rows);
+
+      const result = rawResult?.rows?.[0];
 
       return new User({
         id: result.id,
