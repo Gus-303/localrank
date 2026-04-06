@@ -1,4 +1,3 @@
-require('dotenv').config({ override: false });
 const express = require('express');
 const authRouter = require('./api/auth');
 const aiRouter = require('./api/ai');

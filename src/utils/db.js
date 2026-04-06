@@ -1,5 +1,3 @@
-require('dotenv').config({ override: false });
-
 console.log('[DB URL]', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 30) + '...' : 'NON DÉFINIE');
 
 const { Pool } = require('pg');
