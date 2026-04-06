@@ -105,6 +105,9 @@ router.get('/success', verifyToken, async (req, res) => {
     console.log('[success] session.customer_email:', session.customer_email);
     console.log('[success] req.user.id:', req.user.id);
 
+    const diagnostic = await db.queryAll('SELECT id, email FROM users LIMIT 5', []);
+    console.log('[success] DIAGNOSTIC users en base:', JSON.stringify(diagnostic));
+
     // Étape 1 : identifier l'utilisateur via client_reference_id
     let userId = null;
     const refId = parseInt(session.client_reference_id, 10);
