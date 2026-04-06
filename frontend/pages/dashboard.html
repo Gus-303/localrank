@@ -1212,8 +1212,7 @@
                 });
                 if (!response.ok) throw new Error('Impossible de charger les infos utilisateur');
                 const data = await response.json();
-                // subscriptionStatus vient de /api/auth/me, plan vient de establishmentData
-                renderSubscription(establishmentData.plan, data.user.subscriptionStatus);
+                renderSubscription(data.user.plan, data.user.subscriptionStatus);
             } catch (error) {
                 console.error('Erreur abonnement:', error);
             }
@@ -1323,6 +1322,7 @@
                     alert('Abonnement activ� ! Plan : ' + data.plan);
                     window.history.replaceState({}, '', '/pages/dashboard.html');
                     await loadEstablishments();
+                    await loadSubscription();
                 } else {
                     console.error('[DEBUG][handlePaymentSuccess] Erreur activation plan:', data.error);
                 }
