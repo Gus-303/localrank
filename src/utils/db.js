@@ -13,6 +13,7 @@ if (!process.env.DATABASE_URL) {
 // Créer le pool de connexions PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
   max: 20, // Nombre max de connexions simultanées
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
