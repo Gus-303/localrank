@@ -21,7 +21,11 @@ visibilité sur Google Maps en automatisant :
 localrank/
   src/
     api/         ← routes Express
+      cron.js    ← routes déclenchement manuel cron
+      reports.js ← routes génération rapports PDF
     services/    ← google.js, ai.js, stripe.js
+      cron.js    ← logique posts automatiques hebdomadaires (lundi 9h)
+      pdf.js     ← génération rapports PDF mensuels
     middleware/  ← auth.js, validation.js
     models/      ← schémas base de données
     utils/       ← fonctions réutilisables
@@ -34,6 +38,7 @@ localrank/
   .gitignore
   CLAUDE.md
   CONTEXT.md
+  PROMPTS.md
   package.json
 
 ## 4. RÈGLES ABSOLUES
@@ -70,8 +75,13 @@ localrank/
   - [x] DELETE /api/establishments/:id - supprime (vérifie ownership, protégée)
   - [x] Section "Mes établissements" dans le dashboard frontend
 
-## 8. BUGS RÉSOLUS
-- ✅ Plan pas mis à jour après paiement Stripe
+## 8. FONCTIONNALITÉS OPÉRATIONNELLES
+- ✅ Bug Stripe résolu - plan mis à jour après paiement
+- ✅ auth.js utilise PostgreSQL (était en mémoire)
+- ✅ Page gestion abonnement avec logique upgrade
+- ✅ Posts automatiques hebdomadaires (cron lundi 9h)
+- ✅ Rapports PDF mensuels
+- ✅ Webhook Stripe
 
 ## 9. NOTES TECHNIQUES
 - La `DATABASE_URL` pointait vers une ancienne base de données, ce qui empêchait

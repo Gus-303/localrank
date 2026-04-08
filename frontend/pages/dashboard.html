@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LocalRank - Tableau de bord</title>
+    <title>LocalRank — Tableau de bord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/dashboard.css">
     <style>
         * {
             margin: 0;
@@ -624,57 +626,51 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-left">
-            <h1>LocalRank</h1>
-            <p id="businessName" style="color: #666;"></p>
-        </div>
-        <div class="header-right">
-            <div class="user-info">
-                <p>Connecté en tant que</p>
-                <p class="email" id="userEmail"></p>
-            </div>
-            <button class="btn-primary" id="googleAuthBtn" style="display: none;">🔗 Connecter Google</button>
+    <header class="topbar">
+        <div class="topbar-title" id="businessName"></div>
+        <div class="topbar-actions">
+            <span style="font-size:0.8125rem;color:var(--muted)" id="userEmail"></span>
+            <button class="btn-google-connect" id="googleAuthBtn" style="display: none;">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l4-3v10L9 9H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h7z"/></svg>
+                Connecter Google
+            </button>
             <button class="btn-logout" id="logoutBtn">Déconnexion</button>
         </div>
     </header>
 
-    <div class="container">
+    <div class="content">
         <!-- Section Score Google -->
-        <div class="grid">
-            <div class="section">
-                <h2>📊 Score Google</h2>
-                <div class="score-container">
-                    <div class="score-value" id="scoreValue">-</div>
-                    <div class="stars" id="scoreStars">★★★★★</div>
-                    <div class="score-meta" id="scoreReviews">Nombre d'avis: -</div>
-                </div>
+        <div class="overview-stats">
+            <div class="stat-card">
+                <div class="stat-label">Note Google</div>
+                <div class="stat-value" id="scoreValue">—</div>
+                <div class="stat-stars" id="scoreStars"></div>
+                <div class="stat-sub" id="scoreReviews">—</div>
             </div>
         </div>
 
         <!-- Section Derniers Avis -->
-        <div class="section">
-            <h2>💬 Derniers avis</h2>
-            <div id="errorMessage" class="error-message"></div>
+        <div class="card">
+            <h2 class="card-title" style="margin-bottom:16px;">Derniers avis</h2>
+            <div id="errorMessage" class="error-block"></div>
             <div id="reviewsContainer" class="reviews-list">
-                <div class="empty-state">
-                    <div class="empty-state-icon">📝</div>
-                    Chargement des avis...
+                <div class="loading-row">
+                    <span class="spinner"></span> Chargement des avis…
                 </div>
             </div>
         </div>
 
         <!-- Section Mes établissements -->
-        <div class="section">
-            <div class="establishments-header">
-                <h2>🏪 Mes établissements</h2>
+        <div class="card" style="margin-top:16px;">
+            <div class="estab-header">
+                <span class="card-title">Mes établissements</span>
                 <span class="plan-badge" id="planBadge">Plan free — 0/0</span>
             </div>
             <div id="establishmentsList"></div>
-            <button class="btn-primary" id="addEstablishmentBtn" style="display: none;" onclick="toggleAddForm()">
+            <button class="btn btn-outline btn-sm" id="addEstablishmentBtn" style="display: none; margin-top:12px;" onclick="toggleAddForm()">
                 + Ajouter un établissement
             </button>
-            <div class="add-establishment-form" id="addEstablishmentForm">
+            <div class="form-section" id="addEstablishmentForm">
                 <div class="form-group">
                     <label for="estabName">Nom de l'établissement *</label>
                     <input type="text" id="estabName" placeholder="Ex: Boulangerie Dupont" maxlength="255" />
