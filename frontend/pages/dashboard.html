@@ -4,728 +4,803 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LocalRank — Tableau de bord</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/dashboard.css">
 </head>
 <body>
-    <header class="topbar">
-        <div class="topbar-title" id="businessName"></div>
-        <div class="topbar-actions">
-            <span style="font-size:0.8125rem;color:var(--muted)" id="userEmail"></span>
-            <button class="btn-google-connect" id="googleAuthBtn" style="display: none;">
-                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l4-3v10L9 9H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h7z"/></svg>
-                Connecter Google
+<div class="layout">
+
+    <!-- ─── SIDEBAR ────────────────────────────────────── -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-mark">LR</span>
+            <span class="logo-name" id="businessName">LocalRank</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <span class="nav-label">Principal</span>
+            <button class="nav-item active" data-view="overview">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="1" width="5.5" height="5.5" rx="1"/>
+                    <rect x="8.5" y="1" width="5.5" height="5.5" rx="1"/>
+                    <rect x="1" y="8.5" width="5.5" height="5.5" rx="1"/>
+                    <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1"/>
+                </svg>
+                Aperçu
             </button>
+            <button class="nav-item" data-view="reviews">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 9a1 1 0 0 1-1 1H4l-3 3V2a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7z"/>
+                </svg>
+                Avis Google
+            </button>
+            <button class="nav-item" data-view="posts">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="1" width="13" height="13" rx="2"/>
+                    <line x1="4" y1="5" x2="11" y2="5"/>
+                    <line x1="4" y1="8" x2="11" y2="8"/>
+                    <line x1="4" y1="11" x2="8" y2="11"/>
+                </svg>
+                Posts Google
+            </button>
+
+            <span class="nav-label" style="margin-top: 8px;">Gestion</span>
+            <button class="nav-item" data-view="establishments">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 13V6.5l6.5-4.5 6.5 4.5V13H1z"/>
+                    <rect x="5" y="8.5" width="4" height="4.5"/>
+                </svg>
+                Établissements
+            </button>
+            <button class="nav-item" data-view="subscription">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="13" height="10" rx="1.5"/>
+                    <line x1="1" y1="7" x2="14" y2="7"/>
+                </svg>
+                Abonnement
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-plan">
+                <div class="sidebar-plan-row">
+                    <span class="sidebar-plan-name" id="sidebarPlanName">Plan free</span>
+                    <span class="sidebar-plan-count" id="sidebarPlanCount">0/0</span>
+                </div>
+                <div class="sidebar-plan-bar">
+                    <div class="sidebar-plan-fill" id="sidebarPlanFill" style="width: 0%"></div>
+                </div>
+            </div>
             <button class="btn-logout" id="logoutBtn">Déconnexion</button>
         </div>
-    </header>
+    </aside>
 
-    <div class="content">
-        <!-- Section Score Google -->
-        <div class="overview-stats">
-            <div class="stat-card">
-                <div class="stat-label">Note Google</div>
-                <div class="stat-value" id="scoreValue">—</div>
-                <div class="stat-stars" id="scoreStars"></div>
-                <div class="stat-sub" id="scoreReviews">—</div>
+    <!-- ─── MAIN ───────────────────────────────────────── -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <span class="topbar-title" id="topbarTitle">Aperçu</span>
+            <div class="topbar-actions">
+                <span class="topbar-email" id="userEmail"></span>
+                <button class="btn btn-secondary btn-sm" id="googleAuthBtn" style="display: none;">
+                    <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="6.5" cy="6.5" r="5.5"/>
+                        <path d="M6.5 3.5v3L9 8"/>
+                    </svg>
+                    Connecter Google
+                </button>
             </div>
         </div>
 
-        <!-- Section Derniers Avis -->
-        <div class="card">
-            <h2 class="card-title" style="margin-bottom:16px;">Derniers avis</h2>
-            <div id="errorMessage" class="error-block"></div>
-            <div id="reviewsContainer" class="reviews-list">
-                <div class="loading-row">
-                    <span class="spinner"></span> Chargement des avis…
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- ── VUE APERÇU ──────────────────────────────── -->
+            <div class="view active" id="view-overview">
+                <div class="view-header">
+                    <h1>Aperçu</h1>
+                    <p>Vue d'ensemble de votre activité Google.</p>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Note Google</div>
+                        <div class="metric-value" id="scoreValue">—</div>
+                        <div class="metric-delta" id="scoreStars"></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Nombre d'avis</div>
+                        <div class="metric-value" id="reviewCount">—</div>
+                        <div class="metric-delta">au total</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Posts publiés</div>
+                        <div class="metric-value" id="postsCount">—</div>
+                        <div class="metric-delta">ce mois</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Établissements</div>
+                        <div class="metric-value" id="estabCount">—</div>
+                        <div class="metric-delta" id="estabLimit"></div>
+                    </div>
+                </div>
+                <div id="overviewError" class="error-block"></div>
+            </div>
+
+            <!-- ── VUE AVIS ────────────────────────────────── -->
+            <div class="view" id="view-reviews">
+                <div class="view-header">
+                    <h1>Avis Google</h1>
+                    <p>Gérez et répondez à vos avis clients.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Derniers avis</span>
+                    </div>
+                    <div id="errorMessage" class="error-block"></div>
+                    <div id="reviewsContainer" class="list-container">
+                        <div class="loading-row">
+                            <span class="spinner"></span> Chargement des avis…
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Section Mes établissements -->
-        <div class="card" style="margin-top:16px;">
-            <div class="estab-header">
-                <span class="card-title">Mes établissements</span>
-                <span class="plan-badge" id="planBadge">Plan free — 0/0</span>
+            <!-- ── VUE POSTS ───────────────────────────────── -->
+            <div class="view" id="view-posts">
+                <div class="view-header">
+                    <h1>Posts Google</h1>
+                    <p>Publications automatiques sur votre fiche.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Posts récents</span>
+                        <button class="btn btn-primary btn-sm" onclick="generatePostContent()">Générer un post</button>
+                    </div>
+                    <div id="postsContainer" class="list-container">
+                        <div class="loading-row">
+                            <span class="spinner"></span> Chargement des posts…
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="establishmentsList"></div>
-            <button class="btn btn-outline btn-sm" id="addEstablishmentBtn" style="display: none; margin-top:12px;" onclick="toggleAddForm()">
-                + Ajouter un établissement
+
+            <!-- ── VUE ÉTABLISSEMENTS ──────────────────────── -->
+            <div class="view" id="view-establishments">
+                <div class="view-header">
+                    <h1>Établissements</h1>
+                    <p>Gérez vos fiches Google My Business.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Mes établissements</span>
+                        <span class="badge" id="planBadge">—</span>
+                    </div>
+                    <div id="establishmentsList"></div>
+                    <button class="btn btn-secondary btn-sm" id="addEstablishmentBtn" style="display: none; margin-top: 12px;" onclick="toggleAddForm()">
+                        + Ajouter un établissement
+                    </button>
+                    <div class="form-section" id="addEstablishmentForm">
+                        <div class="form-group">
+                            <label for="estabName">Nom de l'établissement</label>
+                            <input type="text" id="estabName" placeholder="Boulangerie Dupont" maxlength="255">
+                        </div>
+                        <div class="form-group">
+                            <label for="estabType">Type de commerce</label>
+                            <select id="estabType">
+                                <option value="">— Choisir —</option>
+                                <option value="Restaurant">Restaurant</option>
+                                <option value="Coiffeur">Coiffeur</option>
+                                <option value="Boulangerie">Boulangerie</option>
+                                <option value="Garage">Garage</option>
+                                <option value="Pharmacie">Pharmacie</option>
+                                <option value="Hôtel">Hôtel</option>
+                                <option value="Commerce">Commerce</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                        <div id="estabError" class="error-block"></div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary btn-sm" id="submitEstablishmentBtn" onclick="submitEstablishment()">Créer</button>
+                            <button class="btn btn-secondary btn-sm" onclick="toggleAddForm()">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── VUE ABONNEMENT ──────────────────────────── -->
+            <div class="view" id="view-subscription">
+                <div class="view-header">
+                    <h1>Abonnement</h1>
+                    <p>Gérez votre plan LocalRank.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Statut de l'abonnement</span>
+                    </div>
+                    <div id="subscriptionStatus" class="sub-status">—</div>
+                    <div class="plan-grid">
+
+                        <!-- Starter -->
+                        <div class="plan-option" id="planStarter">
+                            <div class="plan-name">Starter</div>
+                            <div class="plan-price-display"><sup>€</sup>29</div>
+                            <div class="plan-period-display">par mois</div>
+                            <div class="plan-limit-display">1 établissement</div>
+                            <button class="btn btn-secondary btn-sm" id="btnUpgradeStarter" onclick="upgradePlan('starter')">Choisir Starter</button>
+                            <div class="plan-current-label" id="currentStarter">Plan actuel</div>
+                            <div class="plan-unavailable-label" id="unavailableStarter">Non disponible</div>
+                        </div>
+
+                        <!-- Pro -->
+                        <div class="plan-option recommended" id="planPro">
+                            <div class="plan-name">Pro <span class="plan-recommended-tag">Populaire</span></div>
+                            <div class="plan-price-display"><sup>€</sup>69</div>
+                            <div class="plan-period-display">par mois</div>
+                            <div class="plan-limit-display">3 établissements</div>
+                            <button class="btn btn-primary btn-sm" id="btnUpgradePro" onclick="upgradePlan('pro')">Choisir Pro</button>
+                            <div class="plan-current-label" id="currentPro">Plan actuel</div>
+                            <div class="plan-unavailable-label" id="unavailablePro">Non disponible</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- ─── MODAL IA ─────────────────────────────────────── -->
+<div id="aiModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 id="modalTitle">Réponse IA</h2>
+            <button class="modal-close" id="closeModal">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <line x1="3" y1="3" x2="12" y2="12"/>
+                    <line x1="12" y1="3" x2="3" y2="12"/>
+                </svg>
             </button>
-            <div class="form-section" id="addEstablishmentForm">
-                <div class="form-group">
-                    <label for="estabName">Nom de l'établissement *</label>
-                    <input type="text" id="estabName" placeholder="Ex: Boulangerie Dupont" maxlength="255" />
-                </div>
-                <div class="form-group">
-                    <label for="estabType">Type de commerce</label>
-                    <select id="estabType">
-                        <option value="">-- Choisir --</option>
-                        <option value="Restaurant">Restaurant</option>
-                        <option value="Coiffeur">Coiffeur</option>
-                        <option value="Boulangerie">Boulangerie</option>
-                        <option value="Garage">Garage</option>
-                        <option value="Pharmacie">Pharmacie</option>
-                        <option value="Hôtel">Hôtel</option>
-                        <option value="Commerce">Commerce</option>
-                        <option value="Autre">Autre</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button class="btn-primary" id="submitEstablishmentBtn" onclick="submitEstablishment()">Créer</button>
-                    <button class="btn-secondary" onclick="toggleAddForm()">Annuler</button>
-                </div>
-                <div id="estabError" class="error-message" style="margin-top: 12px;"></div>
-            </div>
         </div>
-
-        <!-- Section Abonnement -->
-        <div class="section">
-            <h2>💳 Mon abonnement</h2>
-            <div id="subscriptionStatus" class="subscription-status"></div>
-            <div class="plan-cards">
-                <div class="plan-card" id="planStarter">
-                    <h3>Starter</h3>
-                    <div class="plan-price">29€<span>/mois</span></div>
-                    <div class="plan-limit">1 établissement</div>
-                    <button class="btn-primary" id="btnUpgradeStarter" onclick="upgradePlan('starter')">Passer à Starter</button>
-                    <div class="plan-current-badge" id="currentStarter" style="display:none;">Plan actuel</div>
-                    <div class="plan-unavailable-badge" id="unavailableStarter" style="display:none;">Non disponible</div>
-                </div>
-                <div class="plan-card recommended" id="planPro">
-                    <span class="badge-recommended">Recommandé</span>
-                    <h3>Pro</h3>
-                    <div class="plan-price">69€<span>/mois</span></div>
-                    <div class="plan-limit">3 établissements</div>
-                    <button class="btn-primary" id="btnUpgradePro" onclick="upgradePlan('pro')">Passer à Pro</button>
-                    <div class="plan-current-badge" id="currentPro" style="display:none;">Plan actuel</div>
-                    <div class="plan-unavailable-badge" id="unavailablePro" style="display:none;">Non disponible</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section Posts Google -->
-        <div class="section">
-            <h2>📱 Posts Google</h2>
-            <div id="postsContainer" class="posts-list">
-                <div class="empty-state">
-                    <div class="empty-state-icon">📱</div>
-                    Chargement des posts...
-                </div>
-            </div>
+        <div id="modalReviewContent"></div>
+        <div id="aiResponseContainer"></div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary btn-sm" id="cancelBtn">Fermer</button>
+            <button class="btn btn-primary btn-sm" id="copyBtn" style="display: none;">Copier</button>
         </div>
     </div>
+</div>
 
-    <!-- Modal pour générer une réponse IA -->
-    <div id="aiModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Générer une réponse IA</h2>
-                <button class="close-btn" id="closeModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="modalReviewContent"></div>
-                <div id="aiResponseContainer">
-                    <div class="loading-spinner"></div>
-                    <span>Génération de la réponse...</span>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-secondary" id="cancelBtn">Fermer</button>
-                <button class="btn-primary" id="copyBtn" style="display: none;">Copier la réponse</button>
-            </div>
-        </div>
-    </div>
+<script>
+    // ── NAVIGATION ────────────────────────────────────────
+    const VIEW_TITLES = {
+        overview:        'Aperçu',
+        reviews:         'Avis Google',
+        posts:           'Posts Google',
+        establishments:  'Établissements',
+        subscription:    'Abonnement',
+    };
 
-    <script>
-        // Vérifier l'authentification
-        function checkAuth() {
-            const token = localStorage.getItem('token');
-            const user = localStorage.getItem('user');
+    function showView(name) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-            if (!token || !user) {
-                window.location.href = 'login.html';
-                return null;
-            }
+        const view = document.getElementById('view-' + name);
+        if (view) view.classList.add('active');
 
-            return JSON.parse(user);
-        }
+        const navBtn = document.querySelector('[data-view="' + name + '"]');
+        if (navBtn) navBtn.classList.add('active');
 
-        const user = checkAuth();
+        const titleEl = document.getElementById('topbarTitle');
+        if (titleEl) titleEl.textContent = VIEW_TITLES[name] || name;
+    }
 
-        if (user) {
-            document.getElementById('userEmail').textContent = user.email;
-            document.getElementById('businessName').textContent = user.businessName || 'Mon commerce';
-        }
+    document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => showView(btn.dataset.view));
+    });
 
-        // Déconnexion
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+    // ── AUTH ──────────────────────────────────────────────
+    function checkAuth() {
+        const token = localStorage.getItem('token');
+        const user  = localStorage.getItem('user');
+        if (!token || !user) {
             window.location.href = 'login.html';
-        });
-
-        // Récupérer le token JWT
-        function getAuthHeaders() {
-            const token = localStorage.getItem('token');
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            };
+            return null;
         }
+        return JSON.parse(user);
+    }
 
-        // Vérifier si Google est connecté
-        async function checkGoogleConnection() {
-            try {
-                const response = await fetch('/api/google/reviews', {
-                    headers: getAuthHeaders(),
-                });
-                return response.ok;
-            } catch {
-                return false;
-            }
+    const user = checkAuth();
+    if (user) {
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('businessName').textContent = user.businessName || 'LocalRank';
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    });
+
+    function getAuthHeaders() {
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        };
+    }
+
+    // ── ESCAPE HTML ───────────────────────────────────────
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text).replace(/[&<>"']/g, m => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;',
+        }[m]));
+    }
+
+    // ── GOOGLE CONNECTION ─────────────────────────────────
+    async function checkGoogleConnection() {
+        try {
+            const res = await fetch('/api/google/reviews', { headers: getAuthHeaders() });
+            return res.ok;
+        } catch {
+            return false;
         }
+    }
 
-        // Connecter Google
-        async function connectGoogle() {
-            try {
-                const response = await fetch('/api/google/auth', {
-                    headers: getAuthHeaders(),
-                });
-
-                if (!response.ok) {
-                    console.error('Erreur serveur:', response.status, response.statusText);
-                    alert('Impossible de générer l\'URL d\'autorisation Google. Veuillez réessayer.');
-                    return;
-                }
-
-                const data = await response.json();
-                
-                if (data.authUrl) {
-                    // Rediriger vers Google OAuth
-                    window.location.href = data.authUrl;
-                } else {
-                    alert('URL d\'autorisation invalide. Veuillez réessayer.');
-                }
-            } catch (error) {
-                console.error('Erreur de connexion Google:', error);
-                alert('Impossible de connecter Google. Veuillez vérifier votre connexion.');
-            }
-        }
-
-        // Initialiser le bouton Google
-        async function initGoogleButton() {
-            const isConnected = await checkGoogleConnection();
-            const googleBtn = document.getElementById('googleAuthBtn');
-            
-            if (!isConnected) {
-                googleBtn.style.display = 'block';
+    async function connectGoogle() {
+        try {
+            const res = await fetch('/api/google/auth', { headers: getAuthHeaders() });
+            if (!res.ok) { alert('Impossible de générer l\'URL d\'autorisation Google.'); return; }
+            const data = await res.json();
+            if (data.authUrl) {
+                window.location.href = data.authUrl;
             } else {
-                googleBtn.style.display = 'none';
+                alert('URL d\'autorisation invalide.');
             }
+        } catch (err) {
+            console.error('Erreur connexion Google:', err);
+            alert('Impossible de connecter Google. Vérifiez votre connexion.');
         }
+    }
 
-        // Ajouter l'event listener au bouton Google
-        document.getElementById('googleAuthBtn').addEventListener('click', connectGoogle);
+    async function initGoogleButton() {
+        const isConnected = await checkGoogleConnection();
+        document.getElementById('googleAuthBtn').style.display = isConnected ? 'none' : 'inline-flex';
+    }
 
-        // Charger le score Google
-        async function loadGoogleScore() {
-            try {
-                const response = await fetch('/api/dashboard/score', {
-                    headers: getAuthHeaders(),
-                });
+    document.getElementById('googleAuthBtn').addEventListener('click', connectGoogle);
 
-                if (!response.ok) {
-                    throw new Error('Impossible de charger le score');
-                }
+    // ── SCORE GOOGLE ──────────────────────────────────────
+    async function loadGoogleScore() {
+        try {
+            const res = await fetch('/api/dashboard/score', { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error('Impossible de charger le score');
+            const data = await res.json();
+            const score = data.score || 0;
 
-                const data = await response.json();
-                const score = data.score || 0;
+            document.getElementById('scoreValue').textContent = score.toFixed(1);
+            document.getElementById('reviewCount').textContent = data.reviewCount || 0;
 
-                document.getElementById('scoreValue').textContent = score.toFixed(1);
-                document.getElementById('scoreReviews').textContent = `Nombre d'avis: ${data.reviewCount || 0}`;
-
-                // Afficher les étoiles
-                const stars = Math.round(score);
-                const starDisplay = '★'.repeat(stars) + '☆'.repeat(5 - stars);
-                document.getElementById('scoreStars').textContent = starDisplay;
-            } catch (error) {
-                console.error('Erreur:', error);
-                document.getElementById('scoreValue').textContent = 'N/A';
-            }
+            const stars = Math.round(score);
+            document.getElementById('scoreStars').textContent =
+                '★'.repeat(stars) + '☆'.repeat(5 - stars);
+        } catch (err) {
+            console.error('Score:', err);
+            document.getElementById('scoreValue').textContent = 'N/A';
         }
+    }
 
-        // Charger les avis
-        async function loadReviews() {
-            try {
-                const response = await fetch('/api/dashboard/reviews', {
-                    headers: getAuthHeaders(),
-                });
+    // ── AVIS ──────────────────────────────────────────────
+    async function loadReviews() {
+        try {
+            const res = await fetch('/api/dashboard/reviews', { headers: getAuthHeaders() });
 
-                if (!response.ok) {
-                    // Vérifier si c'est parce que Google n'est pas connecté
-                    const isGoogleConnected = await checkGoogleConnection();
-                    if (!isGoogleConnected) {
-                        document.getElementById('reviewsContainer').innerHTML = `
-                            <div class="empty-state">
-                                <div class="empty-state-icon">🔗</div>
-                                <p>Connectez votre compte Google pour voir vos avis</p>
-                                <button class="btn-primary" onclick="connectGoogle()" style="margin-top: 15px; padding: 10px 20px;">
-                                    Connecter mon compte Google
-                                </button>
-                            </div>
-                        `;
-                        return;
-                    }
-                    throw new Error('Impossible de charger les avis');
-                }
-
-                const reviews = await response.json();
-                const container = document.getElementById('reviewsContainer');
-
-                if (!reviews || reviews.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div>Aucun avis pour le moment</div>';
-                    return;
-                }
-
-                container.innerHTML = reviews.map(review => `
-                    <div class="review-item">
-                        <div class="review-header">
-                            <span class="review-author">${escapeHtml(review.author)}</span>
-                            <span class="review-rating">${'★'.repeat(review.rating)}☆${5 - review.rating}</span>
-                        </div>
-                        <div class="review-date">${new Date(review.publishedAt).toLocaleDateString('fr-FR')}</div>
-                        <div class="review-text">${escapeHtml(review.text)}</div>
-                        ${review.response ? `
-                            <div class="review-response has-response">
-                                <div class="review-response-title">Votre réponse :</div>
-                                ${escapeHtml(review.response)}
-                            </div>
-                        ` : `
-                            <button class="btn-small" onclick="generateReviewResponse('${encodeURI(review.text)}', '${review.id}')">
-                                Générer réponse IA
+            if (!res.ok) {
+                const isConnected = await checkGoogleConnection();
+                if (!isConnected) {
+                    document.getElementById('reviewsContainer').innerHTML = `
+                        <div class="empty-state">
+                            <p>Connectez votre compte Google pour voir vos avis.</p>
+                            <button class="btn btn-primary btn-sm" onclick="connectGoogle()" style="margin-top: 12px;">
+                                Connecter Google
                             </button>
-                        `}
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Erreur:', error);
-                document.getElementById('reviewsContainer').innerHTML = '<div class="empty-state">Erreur lors du chargement des avis</div>';
-            }
-        }
-
-        // Charger les posts
-        async function loadPosts() {
-            try {
-                const response = await fetch('/api/dashboard/posts', {
-                    headers: getAuthHeaders(),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Impossible de charger les posts');
-                }
-
-                const posts = await response.json();
-                const container = document.getElementById('postsContainer');
-
-                if (!posts || posts.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📱</div>Aucun post pour le moment</div>';
+                        </div>`;
                     return;
                 }
-
-                container.innerHTML = posts.map(post => `
-                    <div class="post-item">
-                        <div class="post-date">${new Date(post.publishedAt).toLocaleDateString('fr-FR')}</div>
-                        <div class="post-content">${escapeHtml(post.content)}</div>
-                        <button class="btn-small" onclick="generatePostContent()">
-                            Générer post IA
-                        </button>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Erreur:', error);
-                document.getElementById('postsContainer').innerHTML = '<div class="empty-state">Erreur lors du chargement des posts</div>';
-            }
-        }
-
-        // Échapper le HTML pour éviter les XSS
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
-
-        // Générer une réponse IA pour un avis
-        async function generateReviewResponse(reviewText, reviewId) {
-            const modal = document.getElementById('aiModal');
-            const modalBody = document.getElementById('modalReviewContent');
-            const responseContainer = document.getElementById('aiResponseContainer');
-            const copyBtn = document.getElementById('copyBtn');
-
-            modal.classList.add('active');
-            modalBody.innerHTML = `<div class="review-text"><strong>Avis :</strong> ${reviewText}</div>`;
-            copyBtn.style.display = 'none';
-
-            try {
-                const response = await fetch('/api/reviews/generate-response', {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({
-                        reviewId: reviewId,
-                        reviewText: decodeURI(reviewText),
-                    }),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la génération');
-                }
-
-                const data = await response.json();
-                responseContainer.innerHTML = `<div class="ai-response">${escapeHtml(data.response)}</div>`;
-                copyBtn.style.display = 'block';
-                copyBtn.onclick = () => {
-                    navigator.clipboard.writeText(data.response);
-                    copyBtn.textContent = '✓ Copié !';
-                    setTimeout(() => {
-                        copyBtn.textContent = 'Copier la réponse';
-                    }, 2000);
-                };
-            } catch (error) {
-                responseContainer.innerHTML = `<div style="color: #e74c3c; padding: 10px; background: #fdedec; border-radius: 4px;">Erreur: ${error.message}</div>`;
-                console.error('Erreur:', error);
-            }
-        }
-
-        // Générer contenu pour un post
-        async function generatePostContent() {
-            const modal = document.getElementById('aiModal');
-            const modalBody = document.getElementById('modalReviewContent');
-            const responseContainer = document.getElementById('aiResponseContainer');
-            const copyBtn = document.getElementById('copyBtn');
-
-            modal.classList.add('active');
-            modalBody.innerHTML = '<strong>Génération d\'un nouveau post Google</strong>';
-            copyBtn.style.display = 'none';
-
-            try {
-                const response = await fetch('/api/posts/generate', {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la génération');
-                }
-
-                const data = await response.json();
-                responseContainer.innerHTML = `<div class="ai-response">${escapeHtml(data.content)}</div>`;
-                copyBtn.style.display = 'block';
-                copyBtn.onclick = () => {
-                    navigator.clipboard.writeText(data.content);
-                    copyBtn.textContent = '✓ Copié !';
-                    setTimeout(() => {
-                        copyBtn.textContent = 'Copier le post';
-                    }, 2000);
-                };
-            } catch (error) {
-                responseContainer.innerHTML = `<div style="color: #e74c3c; padding: 10px; background: #fdedec; border-radius: 4px;">Erreur: ${error.message}</div>`;
-                console.error('Erreur:', error);
-            }
-        }
-
-        // Fermer la modal
-        document.getElementById('closeModal').addEventListener('click', () => {
-            document.getElementById('aiModal').classList.remove('active');
-        });
-
-        document.getElementById('cancelBtn').addEventListener('click', () => {
-            document.getElementById('aiModal').classList.remove('active');
-        });
-
-        document.getElementById('aiModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('aiModal')) {
-                document.getElementById('aiModal').classList.remove('active');
-            }
-        });
-
-        // --- Établissements ---
-
-        let establishmentData = { establishments: [], plan: 'free', limit: 0, count: 0 };
-
-        async function loadEstablishments() {
-            try {
-                const response = await fetch('/api/establishments', {
-                    headers: getAuthHeaders(),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Impossible de charger les établissements');
-                }
-
-                establishmentData = await response.json();
-                renderEstablishments();
-            } catch (error) {
-                console.error('Erreur établissements:', error);
-                document.getElementById('establishmentsList').innerHTML =
-                    '<div class="empty-state">Erreur lors du chargement.</div>';
-            }
-        }
-
-        function renderEstablishments() {
-            const { establishments, plan, limit, count } = establishmentData;
-
-            document.getElementById('planBadge').textContent =
-                `Plan ${plan} — ${count}/${limit} établissement${limit > 1 ? 's' : ''}`;
-
-            const list = document.getElementById('establishmentsList');
-            if (!establishments || establishments.length === 0) {
-                list.innerHTML = '<div class="empty-state" style="padding: 20px 0 10px;">Aucun établissement ajouté.</div>';
-            } else {
-                list.innerHTML = establishments.map(e => `
-                    <div class="establishment-item">
-                        <div class="establishment-info">
-                            <div class="establishment-name">${escapeHtml(e.name)}</div>
-                            ${e.type ? `<div class="establishment-type">${escapeHtml(e.type)}</div>` : ''}
-                        </div>
-                        <button class="btn-danger" onclick="deleteEstablishment(${e.id})">Supprimer</button>
-                    </div>
-                `).join('');
+                throw new Error('Impossible de charger les avis');
             }
 
-            const addBtn = document.getElementById('addEstablishmentBtn');
-            if (count < limit) {
-                addBtn.style.display = 'inline-block';
-            } else {
-                addBtn.style.display = 'none';
-            }
-        }
+            const reviews = await res.json();
+            const container = document.getElementById('reviewsContainer');
 
-        function toggleAddForm() {
-            const form = document.getElementById('addEstablishmentForm');
-            form.classList.toggle('visible');
-            if (!form.classList.contains('visible')) {
-                document.getElementById('estabName').value = '';
-                document.getElementById('estabType').value = '';
-                document.getElementById('estabError').classList.remove('show');
-            }
-        }
-
-        async function submitEstablishment() {
-            const name = document.getElementById('estabName').value.trim();
-            const type = document.getElementById('estabType').value;
-            const errorEl = document.getElementById('estabError');
-            const submitBtn = document.getElementById('submitEstablishmentBtn');
-
-            errorEl.classList.remove('show');
-
-            if (!name) {
-                errorEl.textContent = 'Le nom est requis.';
-                errorEl.classList.add('show');
+            if (!reviews || reviews.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Aucun avis pour le moment.</p></div>';
                 return;
             }
 
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Création...';
-
-            try {
-                const response = await fetch('/api/establishments', {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ name, type: type || undefined }),
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    errorEl.textContent = data.error || 'Erreur lors de la création.';
-                    errorEl.classList.add('show');
-                    return;
-                }
-
-                toggleAddForm();
-                await loadEstablishments();
-            } catch (error) {
-                errorEl.textContent = 'Erreur réseau. Réessayez.';
-                errorEl.classList.add('show');
-                console.error('Erreur:', error);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Créer';
-            }
+            container.innerHTML = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-meta">
+                        <span class="review-author">${escapeHtml(review.author)}</span>
+                        <div class="review-right">
+                            <span class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                            <span class="review-date">${new Date(review.publishedAt).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                    </div>
+                    <div class="review-text">${escapeHtml(review.text)}</div>
+                    ${review.response ? `
+                        <div class="review-response has-response">
+                            <div class="review-response-label">Votre réponse</div>
+                            ${escapeHtml(review.response)}
+                        </div>
+                    ` : `
+                        <button class="btn btn-secondary btn-sm" onclick="generateReviewResponse('${encodeURIComponent(review.text)}', '${review.id}')">
+                            Générer réponse IA
+                        </button>
+                    `}
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error('Avis:', err);
+            document.getElementById('reviewsContainer').innerHTML =
+                '<div class="empty-state"><p>Erreur lors du chargement des avis.</p></div>';
         }
+    }
 
-        async function deleteEstablishment(id) {
-            if (!confirm('Supprimer cet établissement ?')) return;
+    // ── POSTS ─────────────────────────────────────────────
+    async function loadPosts() {
+        try {
+            const res = await fetch('/api/dashboard/posts', { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error('Impossible de charger les posts');
+            const posts = await res.json();
+            const container = document.getElementById('postsContainer');
 
-            try {
-                const response = await fetch(`/api/establishments/${id}`, {
-                    method: 'DELETE',
-                    headers: getAuthHeaders(),
-                });
+            document.getElementById('postsCount').textContent = posts ? posts.length : 0;
 
-                if (!response.ok) {
-                    const data = await response.json();
-                    alert(data.error || 'Erreur lors de la suppression.');
-                    return;
-                }
-
-                await loadEstablishments();
-            } catch (error) {
-                alert('Erreur réseau. Réessayez.');
-                console.error('Erreur:', error);
+            if (!posts || posts.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Aucun post pour le moment.</p></div>';
+                return;
             }
+
+            container.innerHTML = posts.map(post => `
+                <div class="post-item">
+                    <div class="post-date">${new Date(post.publishedAt).toLocaleDateString('fr-FR')}</div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error('Posts:', err);
+            document.getElementById('postsContainer').innerHTML =
+                '<div class="empty-state"><p>Erreur lors du chargement des posts.</p></div>';
         }
+    }
 
-        // --- Abonnement ---
+    // ── MODAL IA ──────────────────────────────────────────
+    async function generateReviewResponse(encodedText, reviewId) {
+        const modal     = document.getElementById('aiModal');
+        const content   = document.getElementById('modalReviewContent');
+        const container = document.getElementById('aiResponseContainer');
+        const copyBtn   = document.getElementById('copyBtn');
+        const title     = document.getElementById('modalTitle');
 
-        async function loadSubscription() {
-            try {
-                const response = await fetch('/api/auth/me', {
-                    headers: getAuthHeaders(),
-                });
-                if (!response.ok) throw new Error('Impossible de charger les infos utilisateur');
-                const data = await response.json();
-                renderSubscription(data.user.plan, data.user.subscriptionStatus);
-            } catch (error) {
-                console.error('Erreur abonnement:', error);
-            }
-        }
+        title.textContent = 'Réponse IA';
+        modal.classList.add('active');
+        content.innerHTML = `<div class="ai-block"><strong>Avis :</strong> ${escapeHtml(decodeURIComponent(encodedText))}</div>`;
+        container.innerHTML = '<div class="loading-row"><span class="spinner"></span> Génération en cours…</div>';
+        copyBtn.style.display = 'none';
 
-        function renderSubscription(currentPlan, status) {
-            const statusEl = document.getElementById('subscriptionStatus');
-            const statusLabel = status === 'active' ? 'Actif'
-                : status === 'past_due' ? 'Paiement en retard'
-                : 'Inactif';
-            const statusColor = status === 'active' ? '#27ae60' : '#e74c3c';
-            statusEl.innerHTML = `<span style="color:${statusColor}; font-weight:600;">● ${statusLabel}</span>`
-                + ` — Plan actuel : <strong>${escapeHtml(currentPlan || 'free')}</strong>`;
-
-            // Hiérarchie des plans : index plus élevé = plan supérieur
-            const PLAN_RANK = { free: 0, starter: 1, pro: 2 };
-            const normalizedCurrent = (currentPlan || 'free').toLowerCase();
-            const currentRank = PLAN_RANK[normalizedCurrent] ?? 0;
-
-            const plans = ['Starter', 'Pro'];
-            plans.forEach(p => {
-                const key = p.toLowerCase();
-                const cardRank = PLAN_RANK[key];
-                const isCurrent = currentRank === cardRank;
-                const isDowngrade = cardRank < currentRank;
-
-                const btn = document.getElementById('btnUpgrade' + p);
-                const badgeCurrent = document.getElementById('current' + p);
-                const badgeUnavailable = document.getElementById('unavailable' + p);
-                const card = document.getElementById('plan' + p);
-
-                if (isCurrent) {
-                    // Plan actuel : bouton désactivé + badge "Plan actuel"
-                    btn.disabled = true;
-                    btn.style.display = 'inline-block';
-                    badgeCurrent.style.display = 'block';
-                    badgeUnavailable.style.display = 'none';
-                    card.classList.add('current');
-                } else if (isDowngrade) {
-                    // Plan inférieur : bouton caché + badge "Non disponible"
-                    btn.disabled = true;
-                    btn.style.display = 'none';
-                    badgeCurrent.style.display = 'none';
-                    badgeUnavailable.style.display = 'block';
-                    card.classList.remove('current');
-                } else {
-                    // Plan supérieur : bouton upgrade actif
-                    btn.disabled = false;
-                    btn.style.display = 'inline-block';
-                    badgeCurrent.style.display = 'none';
-                    badgeUnavailable.style.display = 'none';
-                    card.classList.remove('current');
-                }
+        try {
+            const res = await fetch('/api/reviews/generate-response', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ reviewId, reviewText: decodeURIComponent(encodedText) }),
             });
+            if (!res.ok) throw new Error('Erreur lors de la génération');
+            const data = await res.json();
+            container.innerHTML = `<div class="ai-block">${escapeHtml(data.response)}</div>`;
+            copyBtn.style.display = 'inline-flex';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(data.response);
+                copyBtn.textContent = 'Copié !';
+                setTimeout(() => { copyBtn.textContent = 'Copier'; }, 2000);
+            };
+        } catch (err) {
+            container.innerHTML = `<div class="error-block show">${escapeHtml(err.message)}</div>`;
+            console.error('Génération réponse:', err);
+        }
+    }
+
+    async function generatePostContent() {
+        const modal     = document.getElementById('aiModal');
+        const content   = document.getElementById('modalReviewContent');
+        const container = document.getElementById('aiResponseContainer');
+        const copyBtn   = document.getElementById('copyBtn');
+        const title     = document.getElementById('modalTitle');
+
+        title.textContent = 'Générer un post Google';
+        modal.classList.add('active');
+        content.innerHTML = '';
+        container.innerHTML = '<div class="loading-row"><span class="spinner"></span> Génération en cours…</div>';
+        copyBtn.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/posts/generate', { method: 'POST', headers: getAuthHeaders() });
+            if (!res.ok) throw new Error('Erreur lors de la génération');
+            const data = await res.json();
+            container.innerHTML = `<div class="ai-block">${escapeHtml(data.content)}</div>`;
+            copyBtn.style.display = 'inline-flex';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(data.content);
+                copyBtn.textContent = 'Copié !';
+                setTimeout(() => { copyBtn.textContent = 'Copier'; }, 2000);
+            };
+        } catch (err) {
+            container.innerHTML = `<div class="error-block show">${escapeHtml(err.message)}</div>`;
+            console.error('Génération post:', err);
+        }
+    }
+
+    function closeModal() { document.getElementById('aiModal').classList.remove('active'); }
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('aiModal').addEventListener('click', e => {
+        if (e.target === document.getElementById('aiModal')) closeModal();
+    });
+
+    // ── ÉTABLISSEMENTS ────────────────────────────────────
+    let establishmentData = { establishments: [], plan: 'free', limit: 0, count: 0 };
+
+    async function loadEstablishments() {
+        try {
+            const res = await fetch('/api/establishments', { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error('Impossible de charger les établissements');
+            establishmentData = await res.json();
+            renderEstablishments();
+        } catch (err) {
+            console.error('Établissements:', err);
+            document.getElementById('establishmentsList').innerHTML =
+                '<div class="empty-state"><p>Erreur lors du chargement.</p></div>';
+        }
+    }
+
+    function renderEstablishments() {
+        const { establishments, plan, limit, count } = establishmentData;
+
+        document.getElementById('planBadge').textContent =
+            `Plan ${plan} — ${count}/${limit} établissement${limit > 1 ? 's' : ''}`;
+
+        // Mettre à jour les métriques aperçu
+        document.getElementById('estabCount').textContent = count;
+        document.getElementById('estabLimit').textContent = `sur ${limit} autorisé${limit > 1 ? 's' : ''}`;
+
+        // Mettre à jour l'indicateur sidebar
+        document.getElementById('sidebarPlanName').textContent = `Plan ${plan}`;
+        document.getElementById('sidebarPlanCount').textContent = `${count}/${limit}`;
+        const pct = limit > 0 ? Math.round((count / limit) * 100) : 0;
+        document.getElementById('sidebarPlanFill').style.width = pct + '%';
+
+        const list = document.getElementById('establishmentsList');
+        if (!establishments || establishments.length === 0) {
+            list.innerHTML = '<div class="empty-state" style="padding: 16px 0 8px;"><p>Aucun établissement ajouté.</p></div>';
+        } else {
+            list.innerHTML = establishments.map(e => `
+                <div class="estab-item">
+                    <div>
+                        <div class="estab-name">${escapeHtml(e.name)}</div>
+                        ${e.type ? `<div class="estab-type">${escapeHtml(e.type)}</div>` : ''}
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="deleteEstablishment(${e.id})">Supprimer</button>
+                </div>
+            `).join('');
         }
 
-        async function upgradePlan(planKey) {
-            try {
-                const pricesRes = await fetch('/api/payments/prices');
-                if (!pricesRes.ok) throw new Error('Impossible de récupérer les prix');
-                const prices = await pricesRes.json();
+        document.getElementById('addEstablishmentBtn').style.display =
+            count < limit ? 'inline-flex' : 'none';
+    }
 
-                const priceId = prices[planKey];
-                if (!priceId) throw new Error('Plan introuvable');
+    function toggleAddForm() {
+        const form = document.getElementById('addEstablishmentForm');
+        form.classList.toggle('visible');
+        if (!form.classList.contains('visible')) {
+            document.getElementById('estabName').value = '';
+            document.getElementById('estabType').value = '';
+            const err = document.getElementById('estabError');
+            err.classList.remove('show');
+            err.textContent = '';
+        }
+    }
 
-                const checkoutRes = await fetch('/api/payments/create-checkout', {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ priceId }),
-                });
+    async function submitEstablishment() {
+        const name      = document.getElementById('estabName').value.trim();
+        const type      = document.getElementById('estabType').value;
+        const errorEl   = document.getElementById('estabError');
+        const submitBtn = document.getElementById('submitEstablishmentBtn');
 
-                if (!checkoutRes.ok) {
-                    const err = await checkoutRes.json();
-                    throw new Error(err.error || 'Erreur lors de la création du paiement');
-                }
+        errorEl.classList.remove('show');
+        errorEl.textContent = '';
 
-                const { checkoutUrl } = await checkoutRes.json();
-                window.location.href = checkoutUrl;
-            } catch (error) {
-                alert('Erreur : ' + error.message);
-                console.error('Erreur upgrade:', error);
+        if (!name) {
+            errorEl.textContent = 'Le nom est requis.';
+            errorEl.classList.add('show');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Création…';
+
+        try {
+            const res = await fetch('/api/establishments', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ name, type: type || undefined }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                errorEl.textContent = data.error || 'Erreur lors de la création.';
+                errorEl.classList.add('show');
+                return;
             }
-        }
-
-        async function handlePaymentSuccess() {
-            const params = new URLSearchParams(window.location.search);
-            const sessionId = params.get('session_id');
-            const success = params.get('success');
-            if (!success || !sessionId) return;
-
-            // [DEBUG] V�rifier la pr�sence du token
-            const token = localStorage.getItem('token');
-            console.log('[DEBUG][handlePaymentSuccess] token pr�sent :', !!token);
-            console.log('[DEBUG][handlePaymentSuccess] session_id :', sessionId);
-
-            try {
-                const response = await fetch('/api/payments/success?session_id=' + sessionId, {
-                    headers: getAuthHeaders(),
-                });
-
-                console.log('[DEBUG][handlePaymentSuccess] HTTP status :', response.status);
-
-                const data = await response.json();
-                console.log('[DEBUG][handlePaymentSuccess] r�ponse API :', data);
-
-                if (response.ok) {
-                    alert('Abonnement activ� ! Plan : ' + data.plan);
-                    window.history.replaceState({}, '', '/pages/dashboard.html');
-                    await loadEstablishments();
-                    await loadSubscription();
-                } else {
-                    console.error('[DEBUG][handlePaymentSuccess] Erreur activation plan:', data.error);
-                }
-            } catch (error) {
-                console.error('[DEBUG][handlePaymentSuccess] Erreur r�seau paiement:', error);
-            }
-        }
-        // Charger les données au démarrage
-        window.addEventListener('load', async () => {
-            handlePaymentSuccess();
-            initGoogleButton();
-            loadGoogleScore();
-            loadReviews();
-            loadPosts();
+            toggleAddForm();
             await loadEstablishments();
-            loadSubscription();
-        });
+        } catch (err) {
+            errorEl.textContent = 'Erreur réseau. Réessayez.';
+            errorEl.classList.add('show');
+            console.error('Création établissement:', err);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Créer';
+        }
+    }
 
-        // Rafraîchir les données toutes les 30 secondes
-        setInterval(() => {
-            loadGoogleScore();
-            loadReviews();
-            loadPosts();
-            loadEstablishments();
-        }, 30000);
-    </script>
+    async function deleteEstablishment(id) {
+        if (!confirm('Supprimer cet établissement ?')) return;
+        try {
+            const res = await fetch('/api/establishments/' + id, {
+                method: 'DELETE',
+                headers: getAuthHeaders(),
+            });
+            if (!res.ok) {
+                const data = await res.json();
+                alert(data.error || 'Erreur lors de la suppression.');
+                return;
+            }
+            await loadEstablishments();
+        } catch (err) {
+            alert('Erreur réseau. Réessayez.');
+            console.error('Suppression:', err);
+        }
+    }
+
+    // ── ABONNEMENT ────────────────────────────────────────
+    async function loadSubscription() {
+        try {
+            const res = await fetch('/api/auth/me', { headers: getAuthHeaders() });
+            if (!res.ok) throw new Error('Impossible de charger les infos utilisateur');
+            const data = await res.json();
+            renderSubscription(data.user.plan, data.user.subscriptionStatus);
+        } catch (err) {
+            console.error('Abonnement:', err);
+        }
+    }
+
+    function renderSubscription(currentPlan, status) {
+        const statusEl    = document.getElementById('subscriptionStatus');
+        const statusLabel = status === 'active'   ? 'Actif'
+                          : status === 'past_due' ? 'Paiement en retard'
+                          : 'Inactif';
+        const statusColor = status === 'active' ? 'var(--success)' : 'var(--danger)';
+
+        statusEl.innerHTML =
+            `<span style="color:${statusColor};font-weight:500;">● ${statusLabel}</span>` +
+            ` — Plan actuel : <strong>${escapeHtml(currentPlan || 'free')}</strong>`;
+
+        const PLAN_RANK = { free: 0, starter: 1, pro: 2 };
+        const currentRank = PLAN_RANK[(currentPlan || 'free').toLowerCase()] ?? 0;
+
+        ['Starter', 'Pro'].forEach(p => {
+            const key             = p.toLowerCase();
+            const cardRank        = PLAN_RANK[key];
+            const isCurrent       = currentRank === cardRank;
+            const isDowngrade     = cardRank < currentRank;
+            const btn             = document.getElementById('btnUpgrade' + p);
+            const badgeCurrent    = document.getElementById('current' + p);
+            const badgeUnavail    = document.getElementById('unavailable' + p);
+            const card            = document.getElementById('plan' + p);
+
+            if (isCurrent) {
+                btn.disabled = true;
+                btn.style.display = 'inline-flex';
+                badgeCurrent.style.display = 'block';
+                badgeUnavail.style.display  = 'none';
+                card.classList.add('current');
+            } else if (isDowngrade) {
+                btn.disabled = true;
+                btn.style.display = 'none';
+                badgeCurrent.style.display = 'none';
+                badgeUnavail.style.display  = 'block';
+                card.classList.remove('current');
+            } else {
+                btn.disabled = false;
+                btn.style.display = 'inline-flex';
+                badgeCurrent.style.display = 'none';
+                badgeUnavail.style.display  = 'none';
+                card.classList.remove('current');
+            }
+        });
+    }
+
+    async function upgradePlan(planKey) {
+        try {
+            const pricesRes = await fetch('/api/payments/prices');
+            if (!pricesRes.ok) throw new Error('Impossible de récupérer les prix');
+            const prices = await pricesRes.json();
+
+            const priceId = prices[planKey];
+            if (!priceId) throw new Error('Plan introuvable');
+
+            const checkoutRes = await fetch('/api/payments/create-checkout', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ priceId }),
+            });
+
+            if (!checkoutRes.ok) {
+                const err = await checkoutRes.json();
+                throw new Error(err.error || 'Erreur lors de la création du paiement');
+            }
+
+            const { checkoutUrl } = await checkoutRes.json();
+            window.location.href = checkoutUrl;
+        } catch (err) {
+            alert('Erreur : ' + err.message);
+            console.error('Upgrade plan:', err);
+        }
+    }
+
+    // ── PAIEMENT SUCCESS ──────────────────────────────────
+    async function handlePaymentSuccess() {
+        const params    = new URLSearchParams(window.location.search);
+        const sessionId = params.get('session_id');
+        const success   = params.get('success');
+        if (!success || !sessionId) return;
+
+        try {
+            const res  = await fetch('/api/payments/success?session_id=' + sessionId, {
+                headers: getAuthHeaders(),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Abonnement activé ! Plan : ' + data.plan);
+                window.history.replaceState({}, '', '/pages/dashboard.html');
+                await loadEstablishments();
+                await loadSubscription();
+            } else {
+                console.error('Activation plan:', data.error);
+            }
+        } catch (err) {
+            console.error('Paiement success:', err);
+        }
+    }
+
+    // ── INIT ──────────────────────────────────────────────
+    window.addEventListener('load', async () => {
+        handlePaymentSuccess();
+        initGoogleButton();
+        loadGoogleScore();
+        loadReviews();
+        loadPosts();
+        await loadEstablishments();
+        loadSubscription();
+    });
+
+    setInterval(() => {
+        loadGoogleScore();
+        loadReviews();
+        loadPosts();
+        loadEstablishments();
+    }, 30000);
+</script>
 </body>
 </html>

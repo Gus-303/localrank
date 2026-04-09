@@ -4,121 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LocalRank — Amplifiez votre visibilité sur Google</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --accent: #5B5BD6;
-            --accent-hover: #4747C2;
-            --ink: #1A1A1A;
-            --muted: #6B7280;
-            --border: #E5E7EB;
-            --surface: #F8F9FA;
-            --white: #FFFFFF;
+            --bg:             #ffffff;
+            --bg-secondary:   #f7f7f6;
+            --bg-tertiary:    #f0efed;
+            --border:         rgba(0,0,0,0.08);
+            --text:           #1a1a1a;
+            --text-secondary: #6b6b6b;
+            --text-tertiary:  #999;
+            --success:        #22c55e;
         }
 
         body {
-            font-family: Inter, system-ui, -apple-system, sans-serif;
-            color: var(--ink);
-            line-height: 1.6;
-            background: var(--white);
+            font-family: 'DM Sans', system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ─── HEADER ─────────────────────────────── */
+        /* ── HEADER ───────────────────────────────── */
         header {
             position: sticky;
             top: 0;
-            background: var(--white);
-            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            border-bottom: 0.5px solid var(--border);
             z-index: 100;
         }
 
         .header-inner {
-            max-width: 1100px;
+            max-width: 1060px;
             margin: 0 auto;
             padding: 0 24px;
-            height: 60px;
+            height: 52px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .logo {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--ink);
-            letter-spacing: -0.3px;
-            text-decoration: none;
-        }
-
-        nav {
             display: flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
+
+        .logo-mark {
+            width: 26px; height: 26px;
+            background: var(--text);
+            color: #fff;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .logo-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        nav { display: flex; align-items: center; gap: 6px; }
 
         .btn {
-            display: inline-block;
-            padding: 8px 18px;
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
             border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: 12px;
+            font-weight: 400;
             text-decoration: none;
             cursor: pointer;
-            border: none;
+            border: 0.5px solid transparent;
             font-family: inherit;
-            transition: background 0.15s ease, color 0.15s ease;
+            transition: background 150ms ease, color 150ms ease;
         }
 
-        .btn-ghost {
-            color: var(--muted);
-            background: transparent;
-        }
+        .btn-ghost { color: var(--text-secondary); background: transparent; border-color: transparent; }
+        .btn-ghost:hover { color: var(--text); background: var(--bg-secondary); }
 
-        .btn-ghost:hover {
-            color: var(--ink);
-            background: var(--surface);
-        }
+        .btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
+        .btn-primary:hover { opacity: 0.85; }
 
-        .btn-primary {
-            background: var(--accent);
-            color: var(--white);
-        }
-
-        .btn-primary:hover { background: var(--accent-hover); }
-
-        /* ─── HERO ───────────────────────────────── */
+        /* ── HERO ─────────────────────────────────── */
         .hero {
-            padding: 100px 24px 88px;
+            padding: 88px 24px 72px;
             text-align: center;
-            background: var(--white);
+            background: var(--bg);
         }
 
         .hero-eyebrow {
             display: inline-block;
-            font-size: 0.8125rem;
-            font-weight: 500;
-            color: var(--muted);
-            letter-spacing: 0.5px;
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            letter-spacing: .04em;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .hero h1 {
-            font-size: clamp(2rem, 5vw, 3.25rem);
-            font-weight: 700;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            max-width: 700px;
-            margin: 0 auto 20px;
-            color: var(--ink);
+            font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+            font-weight: 500;
+            letter-spacing: -0.5px;
+            line-height: 1.15;
+            max-width: 640px;
+            margin: 0 auto 18px;
+            color: var(--text);
         }
 
         .hero p {
-            font-size: 1.0625rem;
-            color: var(--muted);
-            max-width: 500px;
-            margin: 0 auto 36px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            max-width: 440px;
+            margin: 0 auto 32px;
             line-height: 1.65;
         }
 
@@ -126,209 +131,189 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .btn-hero {
-            padding: 12px 28px;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            border-radius: 6px;
-        }
-
-        .hero-note {
-            font-size: 0.8125rem;
-            color: var(--muted);
-        }
-
-        .hero-targets {
-            margin-top: 52px;
-            display: flex;
-            justify-content: center;
             gap: 12px;
             flex-wrap: wrap;
         }
 
-        .target-chip {
-            background: var(--surface);
-            border: 1px solid var(--border);
+        .btn-hero { padding: 8px 20px; font-size: 13px; font-weight: 500; }
+
+        .hero-note { font-size: 11px; color: var(--text-tertiary); }
+
+        .hero-chips {
+            margin-top: 44px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            background: var(--bg-secondary);
+            border: 0.5px solid var(--border);
             border-radius: 4px;
-            padding: 6px 14px;
-            font-size: 0.8125rem;
-            font-weight: 500;
-            color: var(--muted);
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--text-secondary);
         }
 
-        /* ─── SECTION WRAPPER ────────────────────── */
-        section { padding: 80px 24px; }
+        /* ── SECTIONS ─────────────────────────────── */
+        section { padding: 72px 24px; }
 
-        .section-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+        .section-inner { max-width: 1060px; margin: 0 auto; }
 
-        .section-eyebrow {
+        .section-label {
             display: block;
             text-align: center;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 10px;
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--accent);
-            margin-bottom: 12px;
+            letter-spacing: .08em;
+            color: var(--text-tertiary);
+            margin-bottom: 10px;
         }
 
         .section-title {
             text-align: center;
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 10px;
+            font-size: clamp(1.25rem, 2.5vw, 1.625rem);
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
         }
 
         .section-subtitle {
             text-align: center;
-            color: var(--muted);
-            font-size: 0.9375rem;
-            max-width: 480px;
-            margin: 0 auto 52px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            max-width: 400px;
+            margin: 0 auto 44px;
         }
 
-        /* ─── FEATURES ───────────────────────────── */
-        .features { background: var(--surface); }
+        /* ── FEATURES ─────────────────────────────── */
+        .features { background: var(--bg-secondary); }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 1px;
             background: var(--border);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            border: 0.5px solid var(--border);
+            border-radius: 10px;
             overflow: hidden;
         }
 
         .feature-card {
-            background: var(--white);
-            padding: 36px 32px;
+            background: var(--bg);
+            padding: 28px 24px;
         }
 
         .feature-icon {
-            width: 36px;
-            height: 36px;
-            margin-bottom: 18px;
-            color: var(--accent);
+            width: 32px; height: 32px;
+            margin-bottom: 14px;
+            color: var(--text);
         }
 
         .feature-card h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            letter-spacing: -0.2px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
         }
 
         .feature-card p {
-            font-size: 0.9rem;
-            color: var(--muted);
-            line-height: 1.7;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.65;
         }
 
-        /* ─── PRICING ────────────────────────────── */
-        .pricing { background: var(--white); }
+        /* ── PRICING ──────────────────────────────── */
+        .pricing { background: var(--bg); }
 
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
             align-items: start;
         }
 
         .plan-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 32px;
-            position: relative;
+            background: var(--bg);
+            border: 0.5px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
         }
 
-        .plan-card.featured {
-            border-color: var(--accent);
-            border-width: 2px;
-        }
+        .plan-card.featured { border-color: var(--text); }
 
         .plan-label {
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--muted);
-            margin-bottom: 16px;
+            letter-spacing: .06em;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .plan-label .popular-tag {
-            background: var(--accent);
-            color: var(--white);
-            font-size: 0.6875rem;
-            padding: 2px 8px;
+        .popular-tag {
+            font-size: 10px;
+            background: var(--text);
+            color: #fff;
+            padding: 2px 6px;
             border-radius: 3px;
-            letter-spacing: 0;
             text-transform: none;
-            font-weight: 600;
+            letter-spacing: 0;
+            font-weight: 400;
         }
 
         .plan-price {
-            font-size: 2.5rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            color: var(--ink);
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text);
             line-height: 1;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .plan-price sup {
-            font-size: 1.125rem;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 400;
             vertical-align: super;
-            letter-spacing: 0;
         }
 
         .plan-period {
-            font-size: 0.8125rem;
-            color: var(--muted);
-            margin-bottom: 24px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 18px;
         }
 
         .plan-divider {
-            height: 1px;
+            height: 0.5px;
             background: var(--border);
-            margin-bottom: 24px;
+            margin-bottom: 18px;
         }
 
         .plan-features {
             list-style: none;
-            margin-bottom: 28px;
+            margin-bottom: 22px;
         }
 
         .plan-features li {
             display: flex;
             align-items: flex-start;
-            gap: 10px;
-            font-size: 0.875rem;
-            color: var(--muted);
-            padding: 6px 0;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 5px 0;
         }
 
         .plan-features li::before {
             content: "";
             display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 14px; height: 14px;
             flex-shrink: 0;
-            margin-top: 1px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3 8l3.5 3.5L13 4.5' stroke='%235B5BD6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            margin-top: 2px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M2.5 7l3 3 6-5.5' stroke='%231a1a1a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-size: contain;
         }
@@ -337,66 +322,49 @@
             width: 100%;
             text-align: center;
             display: block;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 500;
             font-family: inherit;
             text-decoration: none;
             cursor: pointer;
-            transition: background 0.15s ease, color 0.15s ease;
-            border: none;
+            transition: background 150ms ease, opacity 150ms ease;
         }
 
-        .btn-plan-primary {
-            background: var(--accent);
-            color: var(--white);
-        }
+        .btn-plan-primary { background: var(--text); color: #fff; border: none; }
+        .btn-plan-primary:hover { opacity: 0.85; }
 
-        .btn-plan-primary:hover { background: var(--accent-hover); }
+        .btn-plan-outline { background: transparent; color: var(--text); border: 0.5px solid var(--border); }
+        .btn-plan-outline:hover { background: var(--bg-secondary); }
 
-        .btn-plan-outline {
-            background: transparent;
-            color: var(--ink);
-            border: 1px solid var(--border);
-        }
-
-        .btn-plan-outline:hover { background: var(--surface); }
-
-        /* ─── FOOTER ─────────────────────────────── */
+        /* ── FOOTER ───────────────────────────────── */
         footer {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 28px 24px;
+            background: var(--bg-secondary);
+            border-top: 0.5px solid var(--border);
+            padding: 24px;
         }
 
         .footer-inner {
-            max-width: 1100px;
+            max-width: 1060px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .footer-logo {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--ink);
-            letter-spacing: -0.3px;
+            gap: 10px;
         }
 
         footer p {
-            font-size: 0.8125rem;
-            color: var(--muted);
+            font-size: 12px;
+            color: var(--text-tertiary);
         }
 
-        /* ─── RESPONSIVE ─────────────────────────── */
+        /* ── RESPONSIVE ───────────────────────────── */
         @media (max-width: 640px) {
-            .hero { padding: 64px 16px 56px; }
-            section { padding: 60px 16px; }
-            .feature-card, .plan-card { padding: 28px 24px; }
+            .hero { padding: 56px 16px 48px; }
+            section { padding: 52px 16px; }
+            .feature-card, .plan-card { padding: 24px 20px; }
             .footer-inner { flex-direction: column; text-align: center; }
             .hero-cta { flex-direction: column; }
         }
@@ -404,10 +372,13 @@
 </head>
 <body>
 
-    <!-- ─── HEADER ──────────────────────────────────── -->
+    <!-- ── HEADER ────────────────────────────────────── -->
     <header>
         <div class="header-inner">
-            <a href="/pages/index.html" class="logo">LocalRank</a>
+            <a href="/pages/index.html" class="logo">
+                <span class="logo-mark">LR</span>
+                <span class="logo-name">LocalRank</span>
+            </a>
             <nav>
                 <a href="/pages/login.html" class="btn btn-ghost">Se connecter</a>
                 <a href="/pages/register.html" class="btn btn-primary">Essai gratuit</a>
@@ -415,7 +386,7 @@
         </div>
     </header>
 
-    <!-- ─── HERO ────────────────────────────────────── -->
+    <!-- ── HERO ──────────────────────────────────────── -->
     <section class="hero">
         <span class="hero-eyebrow">Propulsé par l'IA Anthropic</span>
         <h1>Votre fiche Google My Business,<br>en pilote automatique</h1>
@@ -424,57 +395,57 @@
             <a href="/pages/register.html" class="btn btn-primary btn-hero">Commencer gratuitement</a>
             <span class="hero-note">14 jours d'essai · Sans carte bancaire</span>
         </div>
-        <div class="hero-targets">
-            <span class="target-chip">Coiffeurs</span>
-            <span class="target-chip">Restaurants</span>
-            <span class="target-chip">Garages</span>
-            <span class="target-chip">Boulangeries</span>
-            <span class="target-chip">Pharmacies</span>
+        <div class="hero-chips">
+            <span class="chip">Coiffeurs</span>
+            <span class="chip">Restaurants</span>
+            <span class="chip">Garages</span>
+            <span class="chip">Boulangeries</span>
+            <span class="chip">Pharmacies</span>
         </div>
     </section>
 
-    <!-- ─── FEATURES ────────────────────────────────── -->
+    <!-- ── FEATURES ──────────────────────────────────── -->
     <section class="features">
         <div class="section-inner">
-            <span class="section-eyebrow">Fonctionnalités</span>
+            <span class="section-label">Fonctionnalités</span>
             <h2 class="section-title">Tout ce dont vous avez besoin</h2>
             <p class="section-subtitle">Une suite complète pour booster votre présence Google en automatique.</p>
 
             <div class="features-grid">
                 <div class="feature-card">
-                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
                     <h3>Réponses IA aux avis Google</h3>
-                    <p>Notre IA génère des réponses personnalisées et professionnelles à chaque avis en quelques secondes. Améliorez votre note sans effort.</p>
+                    <p>Notre IA génère des réponses personnalisées et professionnelles à chaque avis en quelques secondes.</p>
                 </div>
                 <div class="feature-card">
-                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
                         <line x1="16" y1="2" x2="16" y2="6"/>
                         <line x1="8" y1="2" x2="8" y2="6"/>
                         <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
                     <h3>Posts Google hebdomadaires</h3>
-                    <p>Publiez automatiquement des posts optimisés sur votre fiche chaque semaine. Restez actif et visible sans rien faire.</p>
+                    <p>Publiez automatiquement des posts optimisés sur votre fiche chaque semaine. Restez actif sans effort.</p>
                 </div>
                 <div class="feature-card">
-                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="20" x2="18" y2="10"/>
                         <line x1="12" y1="20" x2="12" y2="4"/>
                         <line x1="6" y1="20" x2="6" y2="14"/>
                     </svg>
                     <h3>Suivi de votre score Google</h3>
-                    <p>Suivez l'évolution de votre note, de vos avis et de votre visibilité locale depuis un tableau de bord clair.</p>
+                    <p>Suivez l'évolution de votre note et de votre visibilité locale depuis un tableau de bord clair.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ─── PRICING ──────────────────────────────────── -->
+    <!-- ── PRICING ────────────────────────────────────── -->
     <section class="pricing">
         <div class="section-inner">
-            <span class="section-eyebrow">Tarifs</span>
+            <span class="section-label">Tarifs</span>
             <h2 class="section-title">Des plans adaptés à votre activité</h2>
             <p class="section-subtitle">Commencez gratuitement, évoluez selon vos besoins. Sans engagement.</p>
 
@@ -571,10 +542,13 @@
         }
     </script>
 
-    <!-- ─── FOOTER ───────────────────────────────────── -->
+    <!-- ── FOOTER ─────────────────────────────────────── -->
     <footer>
         <div class="footer-inner">
-            <div class="footer-logo">LocalRank</div>
+            <a href="/pages/index.html" class="logo">
+                <span class="logo-mark">LR</span>
+                <span class="logo-name">LocalRank</span>
+            </a>
             <p>&copy; 2026 LocalRank. Tous droits réservés.</p>
         </div>
     </footer>

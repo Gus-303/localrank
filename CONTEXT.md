@@ -76,13 +76,12 @@ localrank/
   - [x] Section "Mes établissements" dans le dashboard frontend
 
 ## 8. FONCTIONNALITÉS OPÉRATIONNELLES
-- ✅ Bug Stripe résolu - plan mis à jour après paiement
-- ✅ auth.js utilise PostgreSQL (était en mémoire)
+- ✅ Bug Stripe résolu - auth.js utilise PostgreSQL (était en mémoire)
 - ✅ Page gestion abonnement avec logique upgrade
 - ✅ Posts automatiques hebdomadaires (cron lundi 9h)
 - ✅ Rapports PDF mensuels
-- ✅ Webhook Stripe
-
+- ✅ Webhook Stripe implémenté
+- ✅ 2 plans : Starter 29€ et Pro 69€ (Agency masqué)
 ## 9. NOTES TECHNIQUES
 - La `DATABASE_URL` pointait vers une ancienne base de données, ce qui empêchait
   la mise à jour du plan après paiement Stripe. Résolu en corrigeant la variable
