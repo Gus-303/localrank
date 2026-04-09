@@ -228,7 +228,7 @@
                             <div class="plan-price-display"><sup>€</sup>29</div>
                             <div class="plan-period-display">par mois</div>
                             <div class="plan-limit-display">1 établissement</div>
-                            <button class="btn btn-secondary btn-sm" id="btnUpgradeStarter" onclick="upgradePlan('starter')">Choisir Starter</button>
+                            <button class="btn btn-plan-starter btn-sm" id="btnUpgradeStarter" onclick="upgradePlan('starter')">Choisir Starter</button>
                             <div class="plan-current-label" id="currentStarter">Plan actuel</div>
                             <div class="plan-unavailable-label" id="unavailableStarter">Non disponible</div>
                         </div>
@@ -690,11 +690,16 @@
         const statusLabel = status === 'active'   ? 'Actif'
                           : status === 'past_due' ? 'Paiement en retard'
                           : 'Inactif';
-        const statusColor = status === 'active' ? 'var(--success)' : 'var(--danger)';
+        const dotColor    = status === 'active'   ? '#22c55e'
+                          : status === 'past_due' ? '#f59e0b'
+                          : '#ef4444';
+        const planLabel   = escapeHtml((currentPlan || 'free').charAt(0).toUpperCase() + (currentPlan || 'free').slice(1));
 
         statusEl.innerHTML =
-            `<span style="color:${statusColor};font-weight:500;">● ${statusLabel}</span>` +
-            ` — Plan actuel : <strong>${escapeHtml(currentPlan || 'free')}</strong>`;
+            `<span style="display:inline-flex;align-items:center;gap:6px;">` +
+            `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0;"></span>` +
+            `<span style="font-weight:500;color:#1a1a1a;">${statusLabel} — Plan ${planLabel}</span>` +
+            `</span>`;
 
         const PLAN_RANK = { free: 0, starter: 1, pro: 2 };
         const currentRank = PLAN_RANK[(currentPlan || 'free').toLowerCase()] ?? 0;

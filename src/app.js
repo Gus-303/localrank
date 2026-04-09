@@ -8,6 +8,8 @@ const { runMigrations } = require('./utils/migrations');
 const { initCron } = require('./services/cron');
 const cronRouter = require('./api/cron');
 const reportsRouter = require('./api/reports');
+const dashboardRouter = require('./api/dashboard');
+const postsRouter = require('./api/posts');
 
 const app = express();
 
@@ -31,6 +33,8 @@ app.use('/api/ai', aiRouter);
 app.use('/api/google', googleAuthRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/establishments', establishmentsRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/posts', postsRouter);
 app.use('/api/cron', cronRouter);
 app.use('/api/reports', reportsRouter);
 

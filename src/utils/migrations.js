@@ -92,6 +92,28 @@ async function createEstablishmentsTable() {
 }
 
 /**
+ * Crée la table posts si elle n'existe pas
+ */
+async function createPostsTable() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS posts (
+        id              SERIAL PRIMARY KEY,
+        establishment_id INTEGER REFERENCES establishments(id) ON DELETE CASCADE,
+        content         TEXT NOT NULL,
+        published_at    TIMESTAMP,
+        status          VARCHAR(50) DEFAULT 'draft',
+        created_at      TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('[Migrations] ✓ Posts table created or already exists');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to create posts table:', error.message);
+    throw error;
+  }
+}
+
+/**
  * Crée la table reviews si elle n'existe pas
  */
 async function createReviewsTable() {
@@ -139,6 +161,9 @@ async function runMigrations() {
 
     // Créer la table establishments
     await createEstablishmentsTable();
+
+    // Créer la table posts
+    await createPostsTable();
 
     // Créer la table reviews
     await createReviewsTable();

@@ -2,11 +2,12 @@ const bcrypt = require('bcryptjs');
 const db = require('../utils/db');
 
 class User {
-  constructor({ id, email, password, businessName, createdAt, subscriptionStatus }) {
+  constructor({ id, email, password, businessName, plan, createdAt, subscriptionStatus }) {
     this.id = id;
     this.email = email;
     this.password = password; // hash stocké
     this.businessName = businessName;
+    this.plan = plan || 'free';
     this.createdAt = createdAt;
     this.subscriptionStatus = subscriptionStatus || 'free';
   }
@@ -41,7 +42,7 @@ class User {
   static async findByEmail(email) {
     try {
       const result = await db.queryOne(
-        'SELECT id, email, password, business_name, subscription_status, created_at FROM users WHERE email = $1',
+        'SELECT id, email, password, business_name, plan, subscription_status, created_at FROM users WHERE email = $1',
         [email]
       );
 
@@ -54,6 +55,7 @@ class User {
         email: result.email,
         password: result.password,
         businessName: result.business_name,
+        plan: result.plan,
         subscriptionStatus: result.subscription_status,
         createdAt: result.created_at,
       });
@@ -71,7 +73,7 @@ class User {
   static async findById(id) {
     try {
       const result = await db.queryOne(
-        'SELECT id, email, password, business_name, subscription_status, created_at FROM users WHERE id = $1',
+        'SELECT id, email, password, business_name, plan, subscription_status, created_at FROM users WHERE id = $1',
         [id]
       );
 
@@ -84,6 +86,7 @@ class User {
         email: result.email,
         password: result.password,
         businessName: result.business_name,
+        plan: result.plan,
         subscriptionStatus: result.subscription_status,
         createdAt: result.created_at,
       });
