@@ -105,24 +105,44 @@
                 </div>
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="metric-label">Note Google</div>
+                        <div class="metric-label">Note moyenne</div>
                         <div class="metric-value" id="scoreValue">—</div>
                         <div class="metric-delta" id="scoreStars"></div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-label">Nombre d'avis</div>
+                        <div class="metric-label">Total avis</div>
                         <div class="metric-value" id="reviewCount">—</div>
                         <div class="metric-delta">au total</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Taux de réponse</div>
+                        <div class="metric-value" id="responseRateValue">—</div>
+                        <div class="metric-delta">des avis répondus</div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-label">Posts publiés</div>
                         <div class="metric-value" id="postsCount">—</div>
                         <div class="metric-delta">ce mois</div>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Établissements</div>
-                        <div class="metric-value" id="estabCount">—</div>
-                        <div class="metric-delta" id="estabLimit"></div>
+                </div>
+                <div class="overview-sections">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Derniers avis</span>
+                            <button class="btn btn-secondary btn-sm" onclick="showView('reviews')">Voir tout</button>
+                        </div>
+                        <div id="overviewReviews">
+                            <div class="loading-row"><span class="spinner"></span> Chargement…</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Derniers posts</span>
+                            <button class="btn btn-secondary btn-sm" onclick="showView('posts')">Voir tout</button>
+                        </div>
+                        <div id="overviewPosts">
+                            <div class="loading-row"><span class="spinner"></span> Chargement…</div>
+                        </div>
                     </div>
                 </div>
                 <div id="overviewError" class="error-block"></div>
@@ -417,8 +437,31 @@
 
             if (!reviews || reviews.length === 0) {
                 container.innerHTML = '<div class="empty-state"><p>Aucun avis pour le moment.</p></div>';
+                document.getElementById('overviewReviews').innerHTML =
+                    '<div class="empty-state"><p>Aucun avis pour le moment.</p></div>';
+                document.getElementById('responseRateValue').textContent = '0%';
                 return;
             }
+
+            // Taux de réponse
+            const responded = reviews.filter(r => r.response).length;
+            document.getElementById('responseRateValue').textContent =
+                Math.round((responded / reviews.length) * 100) + '%';
+
+            // Derniers avis dans l'aperçu (3 max)
+            const overviewReviewsEl = document.getElementById('overviewReviews');
+            overviewReviewsEl.innerHTML = reviews.slice(0, 3).map(review => `
+                <div class="overview-item">
+                    <div class="overview-item-header">
+                        <span class="overview-item-author">${escapeHtml(review.author)}</span>
+                        <div class="overview-item-right">
+                            <span class="overview-item-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                            <span class="overview-item-date">${new Date(review.publishedAt).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                    </div>
+                    <div class="overview-item-text">${escapeHtml(review.text)}</div>
+                </div>
+            `).join('');
 
             container.innerHTML = reviews.map(review => `
                 <div class="review-item">
@@ -444,8 +487,9 @@
             `).join('');
         } catch (err) {
             console.error('Avis:', err);
-            document.getElementById('reviewsContainer').innerHTML =
-                '<div class="empty-state"><p>Erreur lors du chargement des avis.</p></div>';
+            const errMsg = '<div class="empty-state"><p>Erreur lors du chargement des avis.</p></div>';
+            document.getElementById('reviewsContainer').innerHTML = errMsg;
+            document.getElementById('overviewReviews').innerHTML = errMsg;
         }
     }
 
@@ -461,8 +505,20 @@
 
             if (!posts || posts.length === 0) {
                 container.innerHTML = '<div class="empty-state"><p>Aucun post pour le moment.</p></div>';
+                document.getElementById('overviewPosts').innerHTML =
+                    '<div class="empty-state"><p>Aucun post pour le moment.</p></div>';
                 return;
             }
+
+            // Derniers posts dans l'aperçu (3 max)
+            document.getElementById('overviewPosts').innerHTML = posts.slice(0, 3).map(post => `
+                <div class="overview-item">
+                    <div class="overview-item-header">
+                        <span class="overview-item-date">${new Date(post.publishedAt).toLocaleDateString('fr-FR')}</span>
+                    </div>
+                    <div class="overview-item-text">${escapeHtml(post.content)}</div>
+                </div>
+            `).join('');
 
             container.innerHTML = posts.map(post => `
                 <div class="post-item">
@@ -472,8 +528,9 @@
             `).join('');
         } catch (err) {
             console.error('Posts:', err);
-            document.getElementById('postsContainer').innerHTML =
-                '<div class="empty-state"><p>Erreur lors du chargement des posts.</p></div>';
+            const errMsg = '<div class="empty-state"><p>Erreur lors du chargement des posts.</p></div>';
+            document.getElementById('postsContainer').innerHTML = errMsg;
+            document.getElementById('overviewPosts').innerHTML = errMsg;
         }
     }
 
@@ -570,10 +627,6 @@
 
         document.getElementById('planBadge').textContent =
             `Plan ${plan} — ${count}/${limit} établissement${limit > 1 ? 's' : ''}`;
-
-        // Mettre à jour les métriques aperçu
-        document.getElementById('estabCount').textContent = count;
-        document.getElementById('estabLimit').textContent = `sur ${limit} autorisé${limit > 1 ? 's' : ''}`;
 
         // Mettre à jour l'indicateur sidebar
         document.getElementById('sidebarPlanName').textContent = `Plan ${plan}`;
