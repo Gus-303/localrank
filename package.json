@@ -16,8 +16,10 @@
     "googleapis": "^171.4.0",
     "jsonwebtoken": "9.0.2",
     "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.5",
     "pdfkit": "^0.15.0",
     "pg": "^8.20.0",
+    "qrcode": "^1.5.4",
     "stripe": "13.11.0"
   },
   "devDependencies": {

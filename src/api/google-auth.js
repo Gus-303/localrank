@@ -2,6 +2,7 @@ const express = require('express');
 const { google } = require('googleapis');
 const { verifyToken } = require('../middleware/auth');
 const db = require('../utils/db');
+const { detectCrisis } = require('../services/notifications');
 
 const router = express.Router();
 
@@ -108,7 +109,23 @@ router.get('/reviews', verifyToken, async (req, res) => {
       console.log('[Google Reviews] Récupération des avis pour user:', req.user.id);
 
       // TODO: implémenter la récupération réelle des avis via Google Business Profiles API
-      res.json({ connected: true, reviews: [] });
+      const reviews = [];
+
+      // Déclencher la détection de crise en arrière-plan pour les avis ≤ 3 étoiles
+      const hasLowRating = reviews.some(r => r.rating <= 3);
+      if (hasLowRating) {
+        const establishments = await db.queryAll(
+          'SELECT id FROM establishments WHERE user_id = $1',
+          [req.user.id]
+        );
+        for (const estab of establishments) {
+          detectCrisis(estab.id).catch(err =>
+            console.error('[Google Reviews] detectCrisis error:', err.message)
+          );
+        }
+      }
+
+      res.json({ connected: true, reviews });
     } catch (reviewError) {
       // La récupération des avis a échoué, mais le token existe : Google est connecté
       console.error('[Google Reviews] Erreur récupération avis:', reviewError.message);

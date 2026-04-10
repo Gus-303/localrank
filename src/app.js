@@ -10,6 +10,10 @@ const cronRouter = require('./api/cron');
 const reportsRouter = require('./api/reports');
 const dashboardRouter = require('./api/dashboard');
 const postsRouter = require('./api/posts');
+const analyticsRouter = require('./api/analytics');
+const toolsRouter = require('./api/tools');
+const auditRouter = require('./api/audit');
+const { campaignsRouter, redirectRouter } = require('./api/campaigns');
 
 const app = express();
 
@@ -35,6 +39,13 @@ app.use('/api/payments', paymentsRouter);
 app.use('/api/establishments', establishmentsRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/posts', postsRouter);
+app.use('/api/analytics', analyticsRouter);
+app.use('/api/tools', toolsRouter);
+app.use('/widget', toolsRouter);
+app.use('/p', toolsRouter);
+app.use('/api/audit', auditRouter);
+app.use('/api/campaigns', campaignsRouter);
+app.use('/r', redirectRouter);
 app.use('/api/cron', cronRouter);
 app.use('/api/reports', reportsRouter);
 

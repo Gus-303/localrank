@@ -137,6 +137,102 @@ async function createReviewsTable() {
 }
 
 /**
+ * Ajoute la colonne slug dans establishments si elle n'existe pas
+ */
+async function addSlugColumn() {
+  try {
+    await db.query(`
+      ALTER TABLE establishments
+      ADD COLUMN IF NOT EXISTS slug VARCHAR(120) UNIQUE;
+    `);
+    console.log('[Migrations] ✓ Slug column added or already exists');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to add slug column:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Crée la table campaigns et campaign_links si elles n'existent pas
+ */
+async function createCampaignsTables() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS campaigns (
+        id               SERIAL PRIMARY KEY,
+        establishment_id INTEGER REFERENCES establishments(id) ON DELETE CASCADE,
+        user_id          INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        subject          VARCHAR(255) NOT NULL,
+        message          TEXT NOT NULL,
+        status           VARCHAR(50) DEFAULT 'draft',
+        sent_at          TIMESTAMP,
+        clicks           INTEGER DEFAULT 0,
+        created_at       TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS campaign_links (
+        id               SERIAL PRIMARY KEY,
+        campaign_id      INTEGER REFERENCES campaigns(id) ON DELETE CASCADE,
+        token            VARCHAR(64) UNIQUE NOT NULL,
+        recipient_email  VARCHAR(255) NOT NULL,
+        redirect_url     TEXT NOT NULL,
+        clicked_at       TIMESTAMP,
+        created_at       TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('[Migrations] ✓ Campaigns tables created or already exist');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to create campaigns tables:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Crée la table analytics_cache si elle n'existe pas
+ */
+async function createAnalyticsCacheTable() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS analytics_cache (
+        id               SERIAL PRIMARY KEY,
+        establishment_id INTEGER REFERENCES establishments(id) ON DELETE CASCADE,
+        type             VARCHAR(50) NOT NULL,
+        data             JSONB NOT NULL,
+        expires_at       TIMESTAMP NOT NULL,
+        created_at       TIMESTAMP DEFAULT NOW(),
+        UNIQUE (establishment_id, type)
+      );
+    `);
+    console.log('[Migrations] ✓ Analytics cache table created or already exists');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to create analytics_cache table:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Crée la table alerts si elle n'existe pas
+ */
+async function createAlertsTable() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS alerts (
+        id               SERIAL PRIMARY KEY,
+        user_id          INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        establishment_id INTEGER REFERENCES establishments(id) ON DELETE CASCADE,
+        type             VARCHAR(50) NOT NULL,
+        triggered_at     TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `);
+    console.log('[Migrations] ✓ Alerts table created or already exists');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to create alerts table:', error.message);
+    throw error;
+  }
+}
+
+/**
  * Exécute toutes les migrations
  * À appeler au démarrage de l'application
  */
@@ -162,11 +258,23 @@ async function runMigrations() {
     // Créer la table establishments
     await createEstablishmentsTable();
 
+    // Ajouter la colonne slug
+    await addSlugColumn();
+
     // Créer la table posts
     await createPostsTable();
 
     // Créer la table reviews
     await createReviewsTable();
+
+    // Créer les tables campaigns et campaign_links
+    await createCampaignsTables();
+
+    // Créer la table analytics_cache
+    await createAnalyticsCacheTable();
+
+    // Créer la table alerts
+    await createAlertsTable();
 
     console.log('[Migrations] ✓ All migrations completed successfully');
     return true;
