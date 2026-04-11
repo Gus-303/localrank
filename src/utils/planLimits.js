@@ -2,7 +2,6 @@ const PLAN_LIMITS = {
   free: 0,
   starter: 1,
   pro: 3,
-  agency: 10,
 };
 
 /**

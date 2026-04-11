@@ -1,3 +1,4 @@
+const path    = require('path');
 const express = require('express');
 const authRouter = require('./api/auth');
 const aiRouter = require('./api/ai');
@@ -30,7 +31,7 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
-app.use(express.static('frontend'));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/api/auth', authRouter);
 app.use('/api/ai', aiRouter);
