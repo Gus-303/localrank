@@ -212,6 +212,22 @@ async function createAnalyticsCacheTable() {
 }
 
 /**
+ * Ajoute la colonne trial_ends_at dans users si elle n'existe pas
+ */
+async function addTrialEndsAtColumn() {
+  try {
+    await db.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMP DEFAULT (NOW() + INTERVAL '30 days');
+    `);
+    console.log('[Migrations] ✓ trial_ends_at column added or already exists');
+  } catch (error) {
+    console.error('[Migrations] ✗ Failed to add trial_ends_at column:', error.message);
+    throw error;
+  }
+}
+
+/**
  * Crée la table alerts si elle n'existe pas
  */
 async function createAlertsTable() {
@@ -275,6 +291,9 @@ async function runMigrations() {
 
     // Créer la table alerts
     await createAlertsTable();
+
+    // Ajouter la colonne trial_ends_at
+    await addTrialEndsAtColumn();
 
     console.log('[Migrations] ✓ All migrations completed successfully');
     return true;

@@ -111,7 +111,7 @@ class User {
       const hashedPassword = await bcrypt.hash(plainPassword, salt);
 
       const rawResult = await db.query(
-        'INSERT INTO users (email, password, business_name, subscription_status) VALUES ($1, $2, $3, $4) RETURNING id, email, business_name, subscription_status, created_at',
+        'INSERT INTO users (email, password, business_name, subscription_status, trial_ends_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL \'30 days\') RETURNING id, email, business_name, subscription_status, trial_ends_at, created_at',
         [email, hashedPassword, businessName, 'free']
       );
 
