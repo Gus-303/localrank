@@ -647,7 +647,7 @@
     });
 
     // ── ÉTABLISSEMENTS ────────────────────────────────────
-    let establishmentData = { establishments: [], plan: 'free', limit: 0, count: 0 };
+    let establishmentData = { establishments: [], plan: 'free', limit: 0, count: 0, trial_ends_at: null, days_left: null };
 
     async function loadEstablishments() {
         try {
@@ -663,7 +663,7 @@
     }
 
     function renderEstablishments() {
-        const { establishments, plan, limit, count } = establishmentData;
+        const { establishments, plan, limit, count, days_left } = establishmentData;
 
         document.getElementById('planBadge').textContent =
             `Plan ${plan} — ${count}/${limit} établissement${limit > 1 ? 's' : ''}`;
@@ -673,6 +673,20 @@
         document.getElementById('sidebarPlanCount').textContent = `${count}/${limit}`;
         const pct = limit > 0 ? Math.round((count / limit) * 100) : 0;
         document.getElementById('sidebarPlanFill').style.width = pct + '%';
+
+        // Afficher les jours restants d'essai si plan free
+        let trialEl = document.getElementById('sidebarTrialDays');
+        if (plan === 'free' && days_left !== null && days_left > 0) {
+            if (!trialEl) {
+                trialEl = document.createElement('div');
+                trialEl.id = 'sidebarTrialDays';
+                trialEl.style.cssText = 'font-size:11px;color:var(--text-secondary);margin-top:4px;';
+                document.getElementById('sidebarPlanFill').parentElement.after(trialEl);
+            }
+            trialEl.textContent = `${days_left} jour${days_left > 1 ? 's' : ''} restant${days_left > 1 ? 's' : ''}`;
+        } else if (trialEl) {
+            trialEl.remove();
+        }
 
         const list = document.getElementById('establishmentsList');
         if (!establishments || establishments.length === 0) {

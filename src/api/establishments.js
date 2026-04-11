@@ -17,15 +17,22 @@ router.get('/', verifyToken, async (req, res) => {
     );
 
     // Récupérer le plan de l'utilisateur pour afficher la limite
-    const user = await db.queryOne('SELECT plan FROM users WHERE id = $1', [req.user.id]);
+    const user = await db.queryOne('SELECT plan, trial_ends_at FROM users WHERE id = $1', [req.user.id]);
     const plan = user?.plan || 'free';
     const limit = PLAN_LIMITS[plan] || 0;
+
+    const trialEndsAt = user?.trial_ends_at || null;
+    const daysLeft = trialEndsAt
+      ? Math.ceil((new Date(trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24))
+      : null;
 
     res.json({
       establishments,
       plan,
       limit,
       count: establishments.length,
+      trial_ends_at: trialEndsAt,
+      days_left: daysLeft,
     });
   } catch (error) {
     const isProd = process.env.NODE_ENV === 'production';

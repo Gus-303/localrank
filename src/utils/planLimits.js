@@ -1,5 +1,5 @@
 const PLAN_LIMITS = {
-  free: 0,
+  free: 1,
   starter: 1,
   pro: 3,
 };
