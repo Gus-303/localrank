@@ -732,7 +732,13 @@ async function analyze() {
         });
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error || 'Établissement introuvable ou erreur d\'analyse.');
+        if (!res.ok) {
+            const raw = data.error || 'Établissement introuvable ou erreur d\'analyse.';
+            const msg = raw.toLowerCase().includes('indisponible') || raw.toLowerCase().includes('google_api_key')
+                ? 'Cette fonctionnalité nécessite une clé Google API configurée sur le serveur. Contactez l\'administrateur.'
+                : raw;
+            throw new Error(msg);
+        }
 
         renderResults(data);
     } catch (err) {
