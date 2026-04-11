@@ -3,7 +3,7 @@ const express = require('express');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const Anthropic = require('@anthropic-ai/sdk');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, checkPlanFeature } = require('../middleware/auth');
 const db = require('../utils/db');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -40,7 +40,7 @@ function parseCsv(csvText) {
  * GET /api/campaigns
  * Liste les campagnes de l'utilisateur avec le nombre de contacts et le taux de clic.
  */
-campaignsRouter.get('/', verifyToken, async (req, res) => {
+campaignsRouter.get('/', verifyToken, checkPlanFeature('campaigns'), async (req, res) => {
   try {
     const rows = await db.queryAll(
       `SELECT
@@ -73,7 +73,7 @@ campaignsRouter.get('/', verifyToken, async (req, res) => {
  * Corps : { establishment_id, subject }
  * Génère un aperçu du message IA sans envoyer ni enregistrer.
  */
-campaignsRouter.post('/preview', verifyToken, async (req, res) => {
+campaignsRouter.post('/preview', verifyToken, checkPlanFeature('campaigns'), async (req, res) => {
   try {
     const { establishment_id, subject } = req.body;
 
@@ -123,7 +123,7 @@ Ton : chaleureux, bref, personnalisé avec "Bonjour [prénom]".`,
  * - Envoie un email par contact avec lien tracké /r/:token
  * - Enregistre la campagne en DB
  */
-campaignsRouter.post('/send', verifyToken, async (req, res) => {
+campaignsRouter.post('/send', verifyToken, checkPlanFeature('campaigns'), async (req, res) => {
   try {
     const { establishment_id, csv, subject, redirect_url } = req.body;
 

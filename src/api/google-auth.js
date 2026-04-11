@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 const { verifyToken } = require('../middleware/auth');
 const db = require('../utils/db');
 const { detectCrisis } = require('../services/notifications');
+const { canAccessFeature } = require('../utils/planLimits');
 
 const router = express.Router();
 
@@ -92,7 +93,7 @@ router.get('/reviews', verifyToken, async (req, res) => {
   try {
     // Vérifier si l'utilisateur a un google_access_token en DB
     const userResult = await db.queryOne(
-      'SELECT google_access_token FROM users WHERE id = $1',
+      'SELECT google_access_token, plan FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -111,9 +112,9 @@ router.get('/reviews', verifyToken, async (req, res) => {
       // TODO: implémenter la récupération réelle des avis via Google Business Profiles API
       const reviews = [];
 
-      // Déclencher la détection de crise en arrière-plan pour les avis ≤ 3 étoiles
+      // Déclencher la détection de crise en arrière-plan (plan pro uniquement)
       const hasLowRating = reviews.some(r => r.rating <= 3);
-      if (hasLowRating) {
+      if (hasLowRating && canAccessFeature(userResult.plan || 'free', 'alerts')) {
         const establishments = await db.queryAll(
           'SELECT id FROM establishments WHERE user_id = $1',
           [req.user.id]

@@ -1,7 +1,7 @@
 require('dotenv').config({ override: false });
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, checkPlanFeature } = require('../middleware/auth');
 const db = require('../utils/db');
 
 const router = express.Router();
@@ -367,7 +367,7 @@ const GOOGLE_TYPE_MAP = {
   commerce:   'store',
 };
 
-router.get('/competitors/:id', verifyToken, async (req, res) => {
+router.get('/competitors/:id', verifyToken, checkPlanFeature('competitors'), async (req, res) => {
   try {
     const estabId = parseInt(req.params.id, 10);
     if (!Number.isInteger(estabId) || estabId <= 0) {

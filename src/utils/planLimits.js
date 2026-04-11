@@ -1,7 +1,14 @@
 const PLAN_LIMITS = {
   free: 1,
-  starter: 1,
-  pro: 3,
+  starter: 3,
+  pro: 10,
+};
+
+// Features disponibles par plan
+const PLAN_FEATURES = {
+  free:    { qrcode: false, alerts: false, competitors: false, campaigns: false },
+  starter: { qrcode: true,  alerts: false, competitors: false, campaigns: false },
+  pro:     { qrcode: true,  alerts: true,  competitors: true,  campaigns: true  },
 };
 
 /**
@@ -15,4 +22,14 @@ function canAddEstablishment(plan, currentCount) {
   return currentCount < limit;
 }
 
-module.exports = { PLAN_LIMITS, canAddEstablishment };
+/**
+ * Vérifie si un plan a accès à une feature
+ * @param {string} plan - Le plan de l'utilisateur
+ * @param {string} feature - La feature à vérifier
+ * @returns {boolean}
+ */
+function canAccessFeature(plan, feature) {
+  return PLAN_FEATURES[plan]?.[feature] === true;
+}
+
+module.exports = { PLAN_LIMITS, PLAN_FEATURES, canAddEstablishment, canAccessFeature };

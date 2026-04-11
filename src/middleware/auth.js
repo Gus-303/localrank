@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const db = require('../utils/db');
+const { canAccessFeature } = require('../utils/planLimits');
 
 /**
  * Middleware pour vérifier le JWT
@@ -56,4 +57,27 @@ async function verifyToken(req, res, next) {
   }
 }
 
-module.exports = { verifyToken };
+/**
+ * Middleware factory pour restreindre l'accès à une feature selon le plan
+ * Doit être utilisé APRÈS verifyToken (req.user.id requis)
+ * @param {string} feature - La feature à vérifier (ex: 'qrcode', 'campaigns')
+ */
+function checkPlanFeature(feature) {
+  return async (req, res, next) => {
+    try {
+      const row = await db.queryOne('SELECT plan FROM users WHERE id = $1', [req.user.id]);
+      const plan = row?.plan || 'free';
+      if (!canAccessFeature(plan, feature)) {
+        return res.status(403).json({
+          error: `Cette fonctionnalité n'est pas disponible sur votre plan "${plan}". Passez à un plan supérieur pour y accéder.`,
+        });
+      }
+      next();
+    } catch (error) {
+      console.error('[checkPlanFeature] Error:', error.message);
+      res.status(500).json({ error: 'Erreur serveur.' });
+    }
+  };
+}
+
+module.exports = { verifyToken, checkPlanFeature };

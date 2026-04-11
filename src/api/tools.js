@@ -1,6 +1,6 @@
 const express = require('express');
 const QRCode = require('qrcode');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, checkPlanFeature } = require('../middleware/auth');
 const db = require('../utils/db');
 
 const router = express.Router();
@@ -47,7 +47,7 @@ function nameToSlug(name) {
     .slice(0, 80);                     // limite à 80 caractères
 }
 
-router.post('/generate-slug/:id', verifyToken, async (req, res) => {
+router.post('/generate-slug/:id', verifyToken, checkPlanFeature('qrcode'), async (req, res) => {
   try {
     const estabId = parseInt(req.params.id, 10);
     if (!Number.isInteger(estabId) || estabId <= 0) {
@@ -104,7 +104,7 @@ router.post('/generate-slug/:id', verifyToken, async (req, res) => {
 // Génère un PNG QR code pointant vers la page publique /p/:slug
 // Protégé : l'utilisateur doit posséder l'établissement
 
-router.get('/qrcode/:id', verifyToken, async (req, res) => {
+router.get('/qrcode/:id', verifyToken, checkPlanFeature('qrcode'), async (req, res) => {
   try {
     const estabId = parseInt(req.params.id, 10);
     if (!Number.isInteger(estabId) || estabId <= 0) {
