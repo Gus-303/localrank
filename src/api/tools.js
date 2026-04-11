@@ -234,7 +234,7 @@ router.get('/p/:slug', async (req, res) => {
 
     const scoreRow = await db.queryOne(
       `SELECT COALESCE(AVG(rating), 0) AS avg, COUNT(*)::int AS total,
-              COUNT(*) FILTER (WHERE response_text IS NOT NULL)::int AS responded
+              COUNT(*) FILTER (WHERE ai_response IS NOT NULL)::int AS responded
        FROM reviews WHERE establishment_id = $1`,
       [estab.id]
     );

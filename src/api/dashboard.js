@@ -35,8 +35,8 @@ router.get('/reviews', verifyToken, async (req, res) => {
          id,
          author,
          rating,
-         text,
-         response_text  AS response,
+         comment        AS text,
+         ai_response    AS response,
          created_at     AS "publishedAt"
        FROM reviews
        WHERE establishment_id = ANY($1)

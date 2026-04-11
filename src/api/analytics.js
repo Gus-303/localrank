@@ -85,7 +85,7 @@ router.get('/score', verifyToken, async (req, res) => {
       `SELECT
          COUNT(*)::int AS total,
          COALESCE(AVG(rating), 0) AS avg_rating,
-         COUNT(*) FILTER (WHERE response_text IS NOT NULL)::int AS responded
+         COUNT(*) FILTER (WHERE ai_response IS NOT NULL)::int AS responded
        FROM reviews
        WHERE establishment_id = $1`,
       [estabId]
@@ -231,7 +231,7 @@ router.get('/suggestions', verifyToken, async (req, res) => {
       `SELECT
          COUNT(*)::int AS total,
          COALESCE(AVG(rating), 0) AS avg_rating,
-         COUNT(*) FILTER (WHERE response_text IS NOT NULL)::int AS responded,
+         COUNT(*) FILTER (WHERE ai_response IS NOT NULL)::int AS responded,
          COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '30 days')::int AS recent_count
        FROM reviews
        WHERE establishment_id = $1`,
