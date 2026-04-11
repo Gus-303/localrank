@@ -21,28 +21,38 @@ async function getFirstEstablishmentId(userId) {
 }
 
 /**
- * Lit le cache en DB. Retourne null si absent ou expiré.
+ * Lit le cache en DB. Retourne null si absent, expiré ou si la table n'existe pas.
  */
 async function getCache(establishmentId, type) {
-  const row = await db.queryOne(
-    `SELECT data FROM analytics_cache
-     WHERE establishment_id = $1 AND type = $2 AND expires_at > NOW()`,
-    [establishmentId, type]
-  );
-  return row ? row.data : null;
+  try {
+    const row = await db.queryOne(
+      `SELECT data FROM analytics_cache
+       WHERE establishment_id = $1 AND type = $2 AND expires_at > NOW()`,
+      [establishmentId, type]
+    );
+    return row ? row.data : null;
+  } catch (err) {
+    console.warn(`[Analytics Cache] getCache(${type}) échoué — table manquante ou erreur DB:`, err.message);
+    return null;
+  }
 }
 
 /**
  * Écrit (upsert) le cache en DB avec expiration 24h.
+ * N'interrompt pas la requête principale si la table n'existe pas.
  */
 async function setCache(establishmentId, type, data) {
-  await db.query(
-    `INSERT INTO analytics_cache (establishment_id, type, data, expires_at)
-     VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours')
-     ON CONFLICT (establishment_id, type)
-     DO UPDATE SET data = EXCLUDED.data, expires_at = EXCLUDED.expires_at`,
-    [establishmentId, type, JSON.stringify(data)]
-  );
+  try {
+    await db.query(
+      `INSERT INTO analytics_cache (establishment_id, type, data, expires_at)
+       VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours')
+       ON CONFLICT (establishment_id, type)
+       DO UPDATE SET data = EXCLUDED.data, expires_at = EXCLUDED.expires_at`,
+      [establishmentId, type, JSON.stringify(data)]
+    );
+  } catch (err) {
+    console.warn(`[Analytics Cache] setCache(${type}) échoué — table manquante ou erreur DB:`, err.message);
+  }
 }
 
 /**
@@ -60,13 +70,17 @@ function parseJsonArray(text) {
 
 router.get('/score', verifyToken, async (req, res) => {
   try {
+    console.log('[Analytics Score] Début — user:', req.user.id);
+
     const estabId = await getFirstEstablishmentId(req.user.id);
+    console.log('[Analytics Score] estabId:', estabId);
     if (!estabId) return res.json({ score: 0, details: {} });
 
     const cached = await getCache(estabId, 'score');
-    if (cached) return res.json(cached);
+    if (cached) { console.log('[Analytics Score] Cache hit'); return res.json(cached); }
 
     // Agrégats principaux
+    console.log('[Analytics Score] Requête stats reviews...');
     const stats = await db.queryOne(
       `SELECT
          COUNT(*)::int AS total,
@@ -76,28 +90,29 @@ router.get('/score', verifyToken, async (req, res) => {
        WHERE establishment_id = $1`,
       [estabId]
     );
+    console.log('[Analytics Score] stats:', stats);
+
+    if (!stats) throw new Error('La requête stats a retourné null — vérifier la table reviews');
 
     const total      = stats.total;
     const avgRating  = parseFloat(stats.avg_rating);
     const responded  = stats.responded;
 
-    // Note (40 pts) : proportionnel à la note moyenne sur 5
-    const noteScore = total > 0 ? Math.round((avgRating / 5) * 40) : 0;
-
-    // Taux de réponse (30 pts)
+    const noteScore     = total > 0 ? Math.round((avgRating / 5) * 40) : 0;
     const responseRate  = total > 0 ? responded / total : 0;
     const responseScore = Math.round(responseRate * 30);
 
-    // Fréquence (20 pts) : avis sur 90 jours, seuil plein = 45 (15/mois)
+    console.log('[Analytics Score] Requête fréquence...');
     const freqRow = await db.queryOne(
       `SELECT COUNT(*)::int AS recent
        FROM reviews
        WHERE establishment_id = $1 AND created_at > NOW() - INTERVAL '90 days'`,
       [estabId]
     );
+    if (!freqRow) throw new Error('La requête fréquence a retourné null');
     const frequencyScore = Math.round(Math.min(freqRow.recent / 45, 1) * 20);
 
-    // Récence (10 pts) : jours depuis le dernier avis
+    console.log('[Analytics Score] Requête récence...');
     const lastRow = await db.queryOne(
       `SELECT created_at FROM reviews
        WHERE establishment_id = $1 ORDER BY created_at DESC LIMIT 1`,
@@ -119,10 +134,12 @@ router.get('/score', verifyToken, async (req, res) => {
       },
     };
 
+    console.log('[Analytics Score] Résultat:', result.score);
     await setCache(estabId, 'score', result);
     res.json(result);
   } catch (error) {
-    console.error('[Analytics Score] Error:', error.message);
+    console.error('[Analytics Score] ERREUR:', error.message);
+    console.error('[Analytics Score] Stack:', error.stack);
     res.status(500).json({
       error: isProd ? 'Erreur lors du calcul du score.' : error.message,
     });
@@ -194,13 +211,22 @@ ${reviewsText}`,
 
 router.get('/suggestions', verifyToken, async (req, res) => {
   try {
+    console.log('[Analytics Suggestions] Début — user:', req.user.id);
+
     const estabId = await getFirstEstablishmentId(req.user.id);
+    console.log('[Analytics Suggestions] estabId:', estabId);
     if (!estabId) return res.json([]);
 
     const cached = await getCache(estabId, 'suggestions');
-    if (cached) return res.json(cached);
+    if (cached) { console.log('[Analytics Suggestions] Cache hit'); return res.json(cached); }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error('[Analytics Suggestions] ANTHROPIC_API_KEY manquante');
+      return res.status(503).json({ error: 'Service IA non configuré.' });
+    }
 
     // Contexte : stats + avis négatifs récents
+    console.log('[Analytics Suggestions] Requête stats...');
     const stats = await db.queryOne(
       `SELECT
          COUNT(*)::int AS total,
@@ -211,7 +237,10 @@ router.get('/suggestions', verifyToken, async (req, res) => {
        WHERE establishment_id = $1`,
       [estabId]
     );
+    console.log('[Analytics Suggestions] stats:', stats);
+    if (!stats) throw new Error('La requête stats a retourné null — vérifier la table reviews');
 
+    console.log('[Analytics Suggestions] Requête avis négatifs...');
     const negativeReviews = await db.queryAll(
       `SELECT comment AS text FROM reviews
        WHERE establishment_id = $1 AND rating <= 3
@@ -266,7 +295,8 @@ ${contextLines.join('\n')}`,
     await setCache(estabId, 'suggestions', suggestions);
     res.json(suggestions);
   } catch (error) {
-    console.error('[Analytics Suggestions] Error:', error.message);
+    console.error('[Analytics Suggestions] ERREUR:', error.message);
+    console.error('[Analytics Suggestions] Stack:', error.stack);
     res.status(500).json({
       error: isProd ? 'Erreur lors de la génération des suggestions.' : error.message,
     });

@@ -27,6 +27,79 @@ function stars(rating) {
   return '★'.repeat(n) + '☆'.repeat(5 - n);
 }
 
+// ── POST /api/tools/generate-slug/:id ────────────────────────
+// Génère un slug depuis le nom de l'établissement et l'enregistre en DB.
+// Retourne { slug }.
+
+/**
+ * Convertit un nom en slug URL-safe.
+ * Ex : "Coiffure & Beauté Martin" → "coiffure-beaute-martin"
+ */
+function nameToSlug(name) {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')   // supprime les accents
+    .replace(/[^a-z0-9\s-]/g, ' ')    // remplace les caractères spéciaux par espace
+    .trim()
+    .replace(/[\s-]+/g, '-')           // espaces → tirets (multiples → un seul)
+    .replace(/^-+|-+$/g, '')           // supprime tirets en début/fin
+    .slice(0, 80);                     // limite à 80 caractères
+}
+
+router.post('/generate-slug/:id', verifyToken, async (req, res) => {
+  try {
+    const estabId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(estabId) || estabId <= 0) {
+      return res.status(400).json({ error: 'ID invalide.' });
+    }
+
+    const estab = await db.queryOne(
+      'SELECT id, name FROM establishments WHERE id = $1 AND user_id = $2',
+      [estabId, req.user.id]
+    );
+
+    if (!estab) {
+      return res.status(404).json({ error: 'Établissement introuvable.' });
+    }
+
+    const base = nameToSlug(estab.name);
+    if (!base) {
+      return res.status(400).json({ error: 'Impossible de générer un slug depuis ce nom.' });
+    }
+
+    // Cherche un slug unique en ajoutant un suffixe numérique si nécessaire
+    let slug    = base;
+    let attempt = 2;
+    while (attempt <= 99) {
+      const existing = await db.queryOne(
+        'SELECT id FROM establishments WHERE slug = $1 AND id <> $2',
+        [slug, estabId]
+      );
+      if (!existing) break;
+      slug = `${base}-${attempt}`;
+      attempt++;
+    }
+
+    if (attempt > 99) {
+      return res.status(409).json({ error: 'Impossible de trouver un slug unique pour ce nom.' });
+    }
+
+    await db.query(
+      'UPDATE establishments SET slug = $1 WHERE id = $2',
+      [slug, estabId]
+    );
+
+    console.log(`[Tools GenerateSlug] estab ${estabId} → slug "${slug}"`);
+    res.json({ slug });
+  } catch (error) {
+    console.error('[Tools GenerateSlug] Error:', error.message);
+    res.status(500).json({
+      error: isProd ? 'Erreur lors de la génération du slug.' : error.message,
+    });
+  }
+});
+
 // ── GET /api/tools/qrcode/:id ─────────────────────────────────
 // Génère un PNG QR code pointant vers la page publique /p/:slug
 // Protégé : l'utilisateur doit posséder l'établissement

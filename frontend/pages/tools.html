@@ -553,17 +553,25 @@ function setupPublicPage(slug) {
     });
 }
 
-// ── SIDEBAR PLAN ──────────────────────────────────────────────
-async function loadSidebarPlan() {
+// ── AUTO SLUG ─────────────────────────────────────────────────
+async function ensureSlug(estabId) {
     try {
-        const res = await fetch('/api/establishments', { headers: getHeaders() });
-        if (!res.ok) return;
-        const data = await res.json();
-        document.getElementById('sidebarPlanName').textContent  = 'Plan ' + (data.plan || 'free');
-        document.getElementById('sidebarPlanCount').textContent = `${data.count || 0}/${data.limit || 0}`;
-        const pct = data.limit > 0 ? Math.round((data.count / data.limit) * 100) : 0;
-        document.getElementById('sidebarPlanFill').style.width  = pct + '%';
-    } catch {}
+        const res = await fetch(`/api/tools/generate-slug/${estabId}`, {
+            method:  'POST',
+            headers: getHeaders(),
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            console.warn('[Slug] Génération échouée:', err.error || '');
+            return null;
+        }
+        const { slug } = await res.json();
+        console.log('[Slug] Généré automatiquement:', slug);
+        return slug;
+    } catch (err) {
+        console.warn('[Slug] Erreur:', err.message);
+        return null;
+    }
 }
 
 // ── INIT ──────────────────────────────────────────────────────
@@ -585,6 +593,11 @@ async function init() {
         document.getElementById('sidebarPlanFill').style.width  = pct + '%';
     } catch (err) {
         console.error('[Init]', err.message);
+    }
+
+    // Si le slug est absent, le générer automatiquement depuis le nom
+    if (_estabId && !_estabSlug) {
+        _estabSlug = await ensureSlug(_estabId);
     }
 
     if (_estabId) {
