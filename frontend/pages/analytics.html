@@ -3,43 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LocalRank — Analytiques</title>
+    <title>LocalRank — Analytique</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/dashboard.css">
     <style>
-        /* ── ANALYTICS EXTENSIONS ─────────────────────────────── */
-
-        .selector-bar {
+        /* ── Score card ─────────────────────────────────────── */
+        .score-card-body {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 32px;
         }
 
-        .selector-label {
-            font-size: 12px;
-            color: var(--text-secondary);
+        .gauge-wrap {
             flex-shrink: 0;
+            position: relative;
         }
 
-        .estab-select {
-            padding: 6px 10px;
-            border: 0.5px solid var(--border);
-            border-radius: 6px;
-            font-size: 12px;
-            font-family: inherit;
+        .gauge-label {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+        }
+
+        .score-details {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .sub-score {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 11px 13px;
+        }
+
+        .sub-score-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .sub-score-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 2px;
+        }
+
+        .sub-score-bar-bg {
+            flex: 1;
+            height: 3px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .sub-score-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .sub-score-pts {
+            font-size: 11px;
+            font-weight: 500;
             color: var(--text);
-            background: var(--bg);
-            cursor: pointer;
-            min-width: 180px;
-            appearance: none;
-            transition: border-color 150ms ease;
+            white-space: nowrap;
+            min-width: 36px;
+            text-align: right;
         }
-        .estab-select:focus { outline: none; border-color: var(--accent); }
 
-        /* Charts grid */
-        .charts-grid {
+        /* ── Charts row ─────────────────────────────────────── */
+        .analytics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
@@ -48,93 +94,163 @@
 
         .chart-wrap {
             position: relative;
-            height: 200px;
-        }
-
-        .chart-wrap-tall {
-            position: relative;
             height: 220px;
         }
 
-        /* Comparison table */
-        .compare-table {
+        .chart-wrap-radar {
+            position: relative;
+            height: 240px;
+        }
+
+        /* ── Suggestions ────────────────────────────────────── */
+        .suggestion-item {
+            padding: 13px 0;
+            border-bottom: 0.5px solid var(--border);
+        }
+        .suggestion-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .suggestion-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .suggestion-action {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            line-height: 1.45;
+        }
+
+        .priority-badge {
+            flex-shrink: 0;
+            font-size: 10px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin-top: 1px;
+        }
+        .priority-haute   { background: rgba(239,68,68,.08);  color: var(--danger);  border: 0.5px solid rgba(239,68,68,.2); }
+        .priority-moyenne { background: rgba(245,158,11,.08); color: var(--warning); border: 0.5px solid rgba(245,158,11,.2); }
+        .priority-faible  { background: rgba(34,197,94,.08);  color: var(--success); border: 0.5px solid rgba(34,197,94,.2); }
+
+        .suggestion-source {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+        }
+
+        /* ── Competitors table ──────────────────────────────── */
+        .comp-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .compare-table th {
+        .comp-table th {
             font-size: 10px;
             font-weight: 400;
             text-transform: uppercase;
             letter-spacing: .04em;
             color: var(--text-tertiary);
-            padding: 0 0 10px;
+            padding: 0 14px 10px 0;
             text-align: left;
             border-bottom: 0.5px solid var(--border);
         }
+        .comp-table th:last-child { padding-right: 0; }
 
-        .compare-table td {
+        .comp-table td {
             font-size: 13px;
             color: var(--text-secondary);
-            padding: 11px 0;
+            padding: 11px 14px 11px 0;
             border-bottom: 0.5px solid var(--border);
+            vertical-align: top;
+        }
+        .comp-table td:last-child { padding-right: 0; }
+        .comp-table tr:last-child td { border-bottom: none; }
+
+        .comp-name-cell { font-weight: 500; color: var(--text); }
+        .comp-address   { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+        .badge-you {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 0.5px solid var(--border);
             vertical-align: middle;
+            margin-left: 5px;
         }
 
-        .compare-table tr:last-child td { border-bottom: none; }
+        .comp-rating    { display: flex; align-items: center; gap: 6px; }
+        .comp-stars     { font-size: 11px; color: #f59e0b; letter-spacing: .5px; }
+        .comp-note      { font-size: 13px; font-weight: 500; color: var(--text); }
 
-        .compare-table td.name-cell {
-            font-weight: 500;
-            color: var(--text);
-        }
+        .comp-delta         { font-size: 11px; font-weight: 500; }
+        .comp-delta-pos     { color: var(--danger); }  /* concurrent meilleur = alert */
+        .comp-delta-neg     { color: var(--success); } /* concurrent moins bon */
 
-        .rating-bar-wrap {
-            display: flex;
-            align-items: center;
+        .comp-activity  { font-size: 11px; color: var(--text-tertiary); }
+
+        /* ── All establishments cards ────────────────────────── */
+        .estab-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
             gap: 8px;
         }
 
-        .rating-bar-bg {
-            flex: 1;
-            height: 4px;
-            background: var(--bg-tertiary);
-            border-radius: 2px;
-            overflow: hidden;
+        .estab-card-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 14px 14px 12px;
         }
 
-        .rating-bar-fill {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 2px;
-        }
-
-        .rating-val {
-            font-size: 12px;
+        .estab-card-name {
+            font-size: 13px;
             font-weight: 500;
             color: var(--text);
-            min-width: 28px;
-            text-align: right;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .badge-plan {
-            font-size: 10px;
-            font-weight: 400;
-            padding: 2px 7px;
-            border-radius: 4px;
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            border: 0.5px solid var(--border);
-            text-transform: uppercase;
-            letter-spacing: .04em;
+        .estab-card-top {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 5px;
         }
 
-        /* Upscale lock */
+        .estab-card-note  { font-size: 22px; font-weight: 500; color: var(--text); line-height: 1; }
+        .estab-card-stars { font-size: 11px; color: #f59e0b; letter-spacing: .5px; }
+
+        .estab-card-bar-bg {
+            height: 3px;
+            background: rgba(0,0,0,0.08);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 7px;
+        }
+
+        .estab-card-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+
+        .estab-card-meta { font-size: 11px; color: var(--text-tertiary); }
+
+        /* ── Plan gate ───────────────────────────────────────── */
         .plan-gate {
-            display: none;
             background: var(--bg-secondary);
             border: 0.5px solid var(--border);
             border-radius: 10px;
-            padding: 28px;
+            padding: 28px 24px;
             text-align: center;
             margin-bottom: 12px;
         }
@@ -150,22 +266,26 @@
             font-size: 12px;
             color: var(--text-secondary);
             margin-bottom: 16px;
+            line-height: 1.6;
         }
 
-        /* Responsive */
+        /* ── Responsive ─────────────────────────────────────── */
         @media (max-width: 900px) {
-            .charts-grid { grid-template-columns: 1fr; }
+            .analytics-grid { grid-template-columns: 1fr; }
+            .score-card-body { flex-direction: column; align-items: flex-start; }
+            .score-details { width: 100%; }
+            .estab-cards { grid-template-columns: 1fr 1fr; }
         }
-
         @media (max-width: 768px) {
-            .charts-grid { grid-template-columns: 1fr; }
+            .score-details { grid-template-columns: 1fr 1fr; }
+            .estab-cards { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 <div class="layout">
 
-    <!-- ─── SIDEBAR ───────────────────────────────────────── -->
+    <!-- ─── SIDEBAR ──────────────────────────────────────── -->
     <aside class="sidebar">
         <div class="sidebar-logo">
             <span class="logo-mark">LR</span>
@@ -183,15 +303,6 @@
                 </svg>
                 Aperçu
             </a>
-            <button class="nav-item active">
-                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="1,11 5,7 8,9 14,3"/>
-                    <line x1="1" y1="14" x2="14" y2="14"/>
-                </svg>
-                Analytiques
-            </button>
-
-            <span class="nav-label" style="margin-top:8px">Gestion</span>
             <a class="nav-item" href="dashboard.html">
                 <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M13 9a1 1 0 0 1-1 1H4l-3 3V2a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7z"/>
@@ -207,12 +318,42 @@
                 </svg>
                 Posts Google
             </a>
+            <a class="nav-item active" href="analytics.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1,11 5,7 8,9 14,3"/>
+                    <line x1="1" y1="14" x2="14" y2="14"/>
+                </svg>
+                Analytique
+            </a>
+            <a class="nav-item" href="tools.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 1.5a3.5 3.5 0 0 1 3.5 3.5c0 .95-.38 1.81-1 2.44L10 9l-4.5 4.5a1.5 1.5 0 0 1-2.12-2.12L8 6.88 9.5 5.5A3.5 3.5 0 0 1 9 1.5z"/>
+                    <line x1="1.5" y1="13.5" x2="3.5" y2="11.5"/>
+                </svg>
+                Outils
+            </a>
+            <a class="nav-item" href="campaigns.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 3l6 4 6-4"/>
+                    <rect x="1" y="3" width="13" height="9" rx="1.5"/>
+                </svg>
+                Campagnes
+            </a>
+
+            <span class="nav-label" style="margin-top:8px">Gestion</span>
             <a class="nav-item" href="dashboard.html">
                 <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M1 13V6.5l6.5-4.5 6.5 4.5V13H1z"/>
                     <rect x="5" y="8.5" width="4" height="4.5"/>
                 </svg>
                 Établissements
+            </a>
+            <a class="nav-item" href="dashboard.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="13" height="10" rx="1.5"/>
+                    <line x1="1" y1="7" x2="14" y2="7"/>
+                </svg>
+                Abonnement
             </a>
         </nav>
 
@@ -234,105 +375,193 @@
     <main class="main">
 
         <div class="topbar">
-            <span class="topbar-title">Analytiques</span>
+            <span class="topbar-title">Analytique</span>
             <div class="topbar-actions">
                 <span class="topbar-email" id="userEmail"></span>
-                <span class="badge" id="planBadge" style="display:none"></span>
             </div>
         </div>
 
         <div class="content">
 
-            <!-- Sélecteur établissement (Pro/Agency) -->
-            <div class="selector-bar" id="selectorBar" style="display:none">
-                <span class="selector-label">Établissement</span>
-                <select class="estab-select" id="estabSelect" onchange="onEstabChange()"></select>
+            <!-- ── Score ──────────────────────────────────── -->
+            <div class="card" style="margin-bottom:12px" id="scoreCard">
+                <div class="card-header">
+                    <span class="card-title">Score de réputation</span>
+                    <span style="font-size:11px;color:var(--text-tertiary)">sur 100 points</span>
+                </div>
+                <div id="scoreLoading" class="loading-row"><span class="spinner"></span>Calcul en cours…</div>
+                <div class="score-card-body" id="scoreBody" style="display:none">
+                    <!-- Jauge SVG -->
+                    <div class="gauge-wrap">
+                        <svg viewBox="0 0 160 160" width="160" height="160" aria-hidden="true">
+                            <!-- Piste de fond -->
+                            <circle cx="80" cy="80" r="64"
+                                fill="none"
+                                stroke="#f0efed"
+                                stroke-width="10"
+                                stroke-dasharray="301.59 402.12"
+                                stroke-linecap="round"
+                                transform="rotate(135 80 80)"/>
+                            <!-- Arc de score -->
+                            <circle id="gaugeArc" cx="80" cy="80" r="64"
+                                fill="none"
+                                stroke="#1a1a1a"
+                                stroke-width="10"
+                                stroke-dasharray="0 402.12"
+                                stroke-linecap="round"
+                                transform="rotate(135 80 80)"/>
+                            <!-- Valeur centrale -->
+                            <text id="gaugeValue" x="80" y="83"
+                                text-anchor="middle"
+                                font-size="34"
+                                font-family="DM Sans, system-ui, sans-serif"
+                                font-weight="500"
+                                fill="#1a1a1a">—</text>
+                            <text x="80" y="101"
+                                text-anchor="middle"
+                                font-size="11"
+                                font-family="DM Sans, system-ui, sans-serif"
+                                fill="#999">/ 100</text>
+                        </svg>
+                        <span class="gauge-label">Score LocalRank</span>
+                    </div>
+                    <!-- Détail des 4 critères -->
+                    <div class="score-details">
+                        <div class="sub-score">
+                            <div class="sub-score-label">Note Google</div>
+                            <div class="sub-score-bar-wrap">
+                                <div class="sub-score-bar-bg">
+                                    <div class="sub-score-bar-fill" id="barNote" style="width:0%"></div>
+                                </div>
+                                <span class="sub-score-pts" id="ptsNote">— / 40</span>
+                            </div>
+                            <div style="font-size:11px;color:var(--text-tertiary)" id="subNote"></div>
+                        </div>
+                        <div class="sub-score">
+                            <div class="sub-score-label">Taux de réponse</div>
+                            <div class="sub-score-bar-wrap">
+                                <div class="sub-score-bar-bg">
+                                    <div class="sub-score-bar-fill" id="barReponses" style="width:0%"></div>
+                                </div>
+                                <span class="sub-score-pts" id="ptsReponses">— / 30</span>
+                            </div>
+                            <div style="font-size:11px;color:var(--text-tertiary)" id="subReponses"></div>
+                        </div>
+                        <div class="sub-score">
+                            <div class="sub-score-label">Fréquence</div>
+                            <div class="sub-score-bar-wrap">
+                                <div class="sub-score-bar-bg">
+                                    <div class="sub-score-bar-fill" id="barFrequence" style="width:0%"></div>
+                                </div>
+                                <span class="sub-score-pts" id="ptsFrequence">— / 20</span>
+                            </div>
+                            <div style="font-size:11px;color:var(--text-tertiary)" id="subFrequence"></div>
+                        </div>
+                        <div class="sub-score">
+                            <div class="sub-score-label">Récence</div>
+                            <div class="sub-score-bar-wrap">
+                                <div class="sub-score-bar-bg">
+                                    <div class="sub-score-bar-fill" id="barRecence" style="width:0%"></div>
+                                </div>
+                                <span class="sub-score-pts" id="ptsRecence">— / 10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="scoreError" class="error-block"></div>
             </div>
 
-            <!-- Plan gate (free/starter) -->
-            <div class="plan-gate" id="planGate">
-                <div class="plan-gate-title">Vue multi-établissements disponible en Pro</div>
-                <div class="plan-gate-sub">Passez au plan Pro pour comparer vos établissements et accéder aux analyses concurrentielles.</div>
-                <a href="dashboard.html" class="btn btn-primary btn-sm">Voir les plans</a>
-            </div>
+            <!-- ── Thèmes + Historique ─────────────────────── -->
+            <div class="analytics-grid">
 
-            <!-- Métriques -->
-            <div class="metrics-grid" id="metricsGrid">
-                <div class="metric-card">
-                    <div class="metric-label">Note moyenne</div>
-                    <div class="metric-value" id="metricNote">—</div>
-                    <div class="metric-delta" id="metricStars"></div>
+                <!-- Radar : Thèmes -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Thèmes détectés</span>
+                        <span style="font-size:11px;color:var(--text-tertiary)">Analyse IA</span>
+                    </div>
+                    <div id="themesLoading" class="loading-row"><span class="spinner"></span>Analyse en cours…</div>
+                    <div class="chart-wrap-radar" id="themesChartWrap" style="display:none">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    <div id="themesEmpty" class="empty-state" style="display:none"><p>Pas assez d'avis pour analyser les thèmes.</p></div>
+                    <div id="themesError" class="error-block"></div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-label">Avis reçus</div>
-                    <div class="metric-value" id="metricTotal">—</div>
-                    <div class="metric-delta">au total</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Ce mois</div>
-                    <div class="metric-value" id="metricMonth">—</div>
-                    <div class="metric-delta">avis reçus</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Tendance</div>
-                    <div class="metric-value" id="metricTrend">—</div>
-                    <div class="metric-delta" id="metricTrendLabel"></div>
-                </div>
-            </div>
 
-            <!-- Graphiques : évolution note + avis par mois -->
-            <div class="charts-grid">
+                <!-- Line : Évolution note -->
                 <div class="card">
                     <div class="card-header">
                         <span class="card-title">Évolution de la note</span>
                         <span style="font-size:11px;color:var(--text-tertiary)">12 derniers mois</span>
                     </div>
-                    <div class="chart-wrap">
-                        <canvas id="noteChart"></canvas>
+                    <div id="historyLoading" class="loading-row"><span class="spinner"></span>Chargement…</div>
+                    <div class="chart-wrap" id="historyChartWrap" style="display:none">
+                        <canvas id="lineChart"></canvas>
                     </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Avis reçus par mois</span>
-                        <span style="font-size:11px;color:var(--text-tertiary)">12 derniers mois</span>
-                    </div>
-                    <div class="chart-wrap">
-                        <canvas id="reviewsChart"></canvas>
-                    </div>
+                    <div id="historyEmpty" class="empty-state" style="display:none"><p>Aucun historique disponible.</p></div>
+                    <div id="historyError" class="error-block"></div>
                 </div>
             </div>
 
-            <!-- Concurrents -->
-            <div class="card" style="margin-bottom:12px">
+            <!-- ── Recommandations ────────────────────────── -->
+            <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Comparaison concurrents</span>
-                    <span style="font-size:11px;color:var(--text-tertiary)">Établissements proches</span>
+                    <span class="card-title">Recommandations</span>
+                    <span style="font-size:11px;color:var(--text-tertiary)">Générées par IA</span>
                 </div>
-                <div id="competitorsEmpty" style="display:none" class="empty-state"><p>Aucun concurrent trouvé à proximité.</p></div>
-                <div id="competitorsLoading" class="loading-row"><span class="spinner"></span>Chargement…</div>
-                <div class="chart-wrap-tall" id="competitorsChartWrap" style="display:none">
-                    <canvas id="competitorsChart"></canvas>
-                </div>
+                <div id="suggestionsLoading" class="loading-row"><span class="spinner"></span>Génération en cours…</div>
+                <div id="suggestionsList" style="display:none"></div>
+                <div id="suggestionsEmpty" class="empty-state" style="display:none"><p>Pas assez de données pour générer des recommandations.</p></div>
+                <div id="suggestionsError" class="error-block"></div>
             </div>
 
-            <!-- Comparaison multi-établissements (Pro / Agency) -->
-            <div class="card" id="compareCard" style="display:none">
+            <!-- ── Concurrents ────────────────────────────── -->
+            <div class="card" style="margin-top:12px" id="competitorsCard">
                 <div class="card-header">
-                    <span class="card-title">Tous vos établissements</span>
-                    <span style="font-size:11px;color:var(--text-tertiary)">Triés par note croissante</span>
+                    <span class="card-title">Concurrents à proximité</span>
+                    <span style="font-size:11px;color:var(--text-tertiary)">Dans un rayon de 2 km</span>
                 </div>
-                <div id="compareLoading" class="loading-row"><span class="spinner"></span>Chargement…</div>
-                <table class="compare-table" id="compareTable" style="display:none">
-                    <thead>
-                        <tr>
-                            <th style="width:40%">Établissement</th>
-                            <th style="width:35%">Note</th>
-                            <th>Avis ce mois</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="compareBody"></tbody>
-                </table>
+                <div id="competitorsLoading" class="loading-row"><span class="spinner"></span>Recherche en cours…</div>
+                <div id="competitorsBody" style="display:none">
+                    <table class="comp-table">
+                        <thead>
+                            <tr>
+                                <th>Établissement</th>
+                                <th>Note</th>
+                                <th>Avis</th>
+                                <th>vs vous</th>
+                            </tr>
+                        </thead>
+                        <tbody id="competitorsTbody"></tbody>
+                    </table>
+                </div>
+                <div id="competitorsEmpty" class="empty-state" style="display:none"><p>Aucun concurrent trouvé dans ce secteur.</p></div>
+                <div id="competitorsError" class="error-block"></div>
+            </div>
+
+            <!-- ── Tous mes établissements (Pro / Agency) ─── -->
+            <div id="allEstabSection" style="margin-top:12px;display:none">
+
+                <!-- Plan gate (non Pro/Agency) -->
+                <div class="plan-gate" id="allEstabGate" style="display:none">
+                    <div class="plan-gate-title">Vue multi-établissements</div>
+                    <div class="plan-gate-sub">Comparez tous vos établissements en un coup d'œil.<br>Disponible à partir du plan Pro.</div>
+                    <a href="dashboard.html" class="btn btn-primary" style="font-size:12px;padding:6px 14px;text-decoration:none">Passer au plan Pro</a>
+                </div>
+
+                <!-- Cards (Pro/Agency only) -->
+                <div id="allEstabContent" style="display:none">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Tous mes établissements</span>
+                            <span style="font-size:11px;color:var(--text-tertiary)" id="allEstabCount"></span>
+                        </div>
+                        <div id="allEstabLoading" class="loading-row"><span class="spinner"></span>Chargement…</div>
+                        <div class="estab-cards" id="allEstabCards" style="display:none"></div>
+                        <div id="allEstabEmpty" class="empty-state" style="display:none"><p>Aucun établissement trouvé.</p></div>
+                        <div id="allEstabError" class="error-block"></div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -342,22 +571,18 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 // ── AUTH ──────────────────────────────────────────────────────
-function checkAuth() {
+(function () {
     const token = localStorage.getItem('token');
     const user  = localStorage.getItem('user');
-    if (!token || !user) { window.location.href = 'login.html'; return null; }
-    return JSON.parse(user);
-}
+    if (!token || !user) { window.location.href = 'login.html'; return; }
+    const u = JSON.parse(user);
+    document.getElementById('userEmail').textContent    = u.email  || '';
+    document.getElementById('businessName').textContent = u.businessName || 'LocalRank';
+})();
 
-const currentUser = checkAuth();
-if (currentUser) {
-    document.getElementById('userEmail').textContent    = currentUser.email || '';
-    document.getElementById('businessName').textContent = currentUser.businessName || 'LocalRank';
-}
-
-function getAuthHeaders() {
+function getHeaders() {
     return {
-        'Content-Type': 'application/json',
+        'Content-Type':  'application/json',
         'Authorization': 'Bearer ' + localStorage.getItem('token'),
     };
 }
@@ -368,391 +593,479 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
     window.location.href = 'login.html';
 });
 
-// ── CHART.JS DEFAULTS ─────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────
+function escapeHtml(s) {
+    if (!s) return '';
+    return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+}
+
+function showEl(id)  { document.getElementById(id).style.display = 'block'; }
+function hideEl(id)  { document.getElementById(id).style.display = 'none';  }
+function showFlex(id){ document.getElementById(id).style.display = 'flex';  }
+
+function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+}
+
+// ── CHART.JS ──────────────────────────────────────────────────
 Chart.defaults.font.family  = "'DM Sans', system-ui, sans-serif";
 Chart.defaults.font.size    = 11;
 Chart.defaults.color        = '#6b6b6b';
 
-const CHART_OPTS_BASE = {
-    responsive:          true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: { display: false },
-        tooltip: {
-            backgroundColor: '#1a1a1a',
-            titleColor:      '#fff',
-            bodyColor:       'rgba(255,255,255,0.7)',
-            padding:         8,
-            cornerRadius:    6,
-            titleFont:       { size: 11, weight: '500' },
-            bodyFont:        { size: 11 },
-        },
-    },
+const TOOLTIP = {
+    backgroundColor: '#1a1a1a',
+    titleColor:      '#fff',
+    bodyColor:       'rgba(255,255,255,.7)',
+    padding:          8,
+    cornerRadius:     6,
+    titleFont:        { size: 11, weight: '500' },
+    bodyFont:         { size: 11 },
 };
 
-let noteChartInst        = null;
-let reviewsChartInst     = null;
-let competitorsChartInst = null;
+// ── GAUGE ─────────────────────────────────────────────────────
+// r=64, cx=cy=80, viewBox 160×160
+// circumference = 2π×64 = 402.12 | arc_270 = 0.75×402.12 = 301.59
+const ARC_270 = 301.59;
 
-function toStars(r) {
-    const n = Math.max(0, Math.min(5, Math.round(r)));
-    return '★'.repeat(n) + '☆'.repeat(5 - n);
+function renderGauge(score) {
+    const filled = (score / 100) * ARC_270;
+    document.getElementById('gaugeArc').setAttribute('stroke-dasharray', `${filled.toFixed(2)} 402.12`);
+    document.getElementById('gaugeValue').textContent = score;
 }
 
+// ── SCORE ─────────────────────────────────────────────────────
+async function loadScore() {
+    try {
+        const res  = await fetch('/api/analytics/score', { headers: getHeaders() });
+        if (!res.ok) throw new Error(await res.json().then(d => d.error).catch(() => 'Erreur'));
+        const data = await res.json();
+
+        hideEl('scoreLoading');
+        showFlex('scoreBody');
+
+        const { score, details } = data;
+        renderGauge(score);
+
+        const { note, reponses, frequence, recence } = details;
+        _myRating = note.avg_rating || null;
+
+        // Note
+        document.getElementById('barNote').style.width     = `${(note.points / 40) * 100}%`;
+        document.getElementById('ptsNote').textContent     = `${note.points} / 40`;
+        document.getElementById('subNote').textContent     = note.avg_rating ? `${note.avg_rating} / 5 étoiles` : '';
+
+        // Réponses
+        document.getElementById('barReponses').style.width  = `${(reponses.points / 30) * 100}%`;
+        document.getElementById('ptsReponses').textContent  = `${reponses.points} / 30`;
+        document.getElementById('subReponses').textContent  = reponses.taux != null ? `${reponses.taux}% des avis` : '';
+
+        // Fréquence
+        document.getElementById('barFrequence').style.width  = `${(frequence.points / 20) * 100}%`;
+        document.getElementById('ptsFrequence').textContent  = `${frequence.points} / 20`;
+        document.getElementById('subFrequence').textContent  = frequence.avis_90j != null ? `${frequence.avis_90j} avis sur 90j` : '';
+
+        // Récence
+        document.getElementById('barRecence').style.width  = `${(recence.points / 10) * 100}%`;
+        document.getElementById('ptsRecence').textContent  = `${recence.points} / 10`;
+
+        // Sidebar plan
+        await loadSidebarPlan();
+    } catch (err) {
+        hideEl('scoreLoading');
+        showError('scoreError', err.message || 'Impossible de charger le score.');
+        console.error('[Score]', err.message);
+    }
+}
+
+// ── SIDEBAR PLAN ──────────────────────────────────────────────
+async function loadSidebarPlan() {
+    try {
+        const res = await fetch('/api/establishments', { headers: getHeaders() });
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById('sidebarPlanName').textContent  = 'Plan ' + (data.plan || 'free');
+        document.getElementById('sidebarPlanCount').textContent = `${data.count || 0}/${data.limit || 0}`;
+        const pct = data.limit > 0 ? Math.round((data.count / data.limit) * 100) : 0;
+        document.getElementById('sidebarPlanFill').style.width  = pct + '%';
+    } catch {}
+}
+
+// ── THEMES (Radar) ────────────────────────────────────────────
+async function loadThemes() {
+    try {
+        const res    = await fetch('/api/analytics/themes', { headers: getHeaders() });
+        if (!res.ok) throw new Error(await res.json().then(d => d.error).catch(() => 'Erreur'));
+        const themes = await res.json();
+
+        hideEl('themesLoading');
+
+        if (!themes || themes.length === 0) {
+            showEl('themesEmpty');
+            return;
+        }
+
+        showEl('themesChartWrap');
+
+        const SENT_COLOR = { positif: '#22c55e', neutre: '#f59e0b', négatif: '#ef4444' };
+
+        new Chart(document.getElementById('radarChart'), {
+            type: 'radar',
+            data: {
+                labels: themes.map(t => escapeHtml(t.theme)),
+                datasets: [{
+                    data:                themes.map(t => t.count),
+                    backgroundColor:     'rgba(26,26,26,.07)',
+                    borderColor:         '#1a1a1a',
+                    borderWidth:          1.5,
+                    pointBackgroundColor: themes.map(t => SENT_COLOR[t.sentiment] || '#1a1a1a'),
+                    pointRadius:          4,
+                    pointBorderColor:     '#fff',
+                    pointBorderWidth:     1.5,
+                }],
+            },
+            options: {
+                responsive:          true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        min:  0,
+                        ticks:  { display: false, stepSize: 1 },
+                        grid:   { color: 'rgba(0,0,0,.07)' },
+                        angleLines: { color: 'rgba(0,0,0,.07)' },
+                        pointLabels: {
+                            font:  { size: 11 },
+                            color: '#1a1a1a',
+                        },
+                    },
+                },
+                plugins: {
+                    legend:  { display: false },
+                    tooltip: { ...TOOLTIP, callbacks: {
+                        label: ctx => {
+                            const t   = themes[ctx.dataIndex];
+                            const map = { positif: '✓ positif', neutre: '~ neutre', négatif: '✗ négatif' };
+                            return ` ${ctx.raw} mention${ctx.raw > 1 ? 's' : ''} · ${map[t.sentiment] || t.sentiment}`;
+                        },
+                    }},
+                },
+            },
+        });
+    } catch (err) {
+        hideEl('themesLoading');
+        showError('themesError', err.message || 'Impossible d\'analyser les thèmes.');
+        console.error('[Themes]', err.message);
+    }
+}
+
+// ── HISTORY (Line chart) ──────────────────────────────────────
 function fmtMonth(yyyymm) {
     const [y, m] = yyyymm.split('-');
     const names  = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
     return names[parseInt(m, 10) - 1] + ' ' + y.slice(2);
 }
 
-// ── STATE ─────────────────────────────────────────────────────
-let establishments    = [];
-let selectedEstabId   = null;
-let userPlan          = 'free';
-const MULTI_PLANS     = ['pro', 'agency'];
+async function loadHistory(estabId) {
+    try {
+        const res  = await fetch(`/api/analytics/history/${estabId}`, { headers: getHeaders() });
+        if (!res.ok) throw new Error(await res.json().then(d => d.error).catch(() => 'Erreur'));
+        const rows = await res.json();
+
+        hideEl('historyLoading');
+
+        const hasData = rows.some(r => r.count > 0);
+        if (!hasData) { showEl('historyEmpty'); return; }
+
+        showEl('historyChartWrap');
+
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels:   rows.map(r => fmtMonth(r.month)),
+                datasets: [{
+                    data:                 rows.map(r => r.avg_rating > 0 ? r.avg_rating : null),
+                    borderColor:          '#1a1a1a',
+                    borderWidth:          1.5,
+                    pointBackgroundColor: '#1a1a1a',
+                    pointBorderColor:     '#fff',
+                    pointBorderWidth:     1.5,
+                    pointRadius:          3,
+                    tension:              0.35,
+                    fill:                 false,
+                    spanGaps:             true,
+                }],
+            },
+            options: {
+                responsive:          true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 0, max: 5,
+                        ticks:  { stepSize: 1 },
+                        grid:   { color: 'rgba(0,0,0,.06)' },
+                        border: { display: false },
+                    },
+                    x: {
+                        grid:   { display: false },
+                        border: { display: false },
+                        ticks:  { maxRotation: 0, maxTicksLimit: 6 },
+                    },
+                },
+                plugins: {
+                    legend:  { display: false },
+                    tooltip: { ...TOOLTIP, callbacks: {
+                        label: ctx => ctx.raw != null ? ` ${ctx.raw} / 5` : ' Aucun avis',
+                    }},
+                },
+            },
+        });
+    } catch (err) {
+        hideEl('historyLoading');
+        showError('historyError', err.message || 'Impossible de charger l\'historique.');
+        console.error('[History]', err.message);
+    }
+}
+
+// ── SUGGESTIONS ───────────────────────────────────────────────
+async function loadSuggestions() {
+    try {
+        const res   = await fetch('/api/analytics/suggestions', { headers: getHeaders() });
+        if (!res.ok) throw new Error(await res.json().then(d => d.error).catch(() => 'Erreur'));
+        const items = await res.json();
+
+        hideEl('suggestionsLoading');
+
+        if (!items || items.length === 0) { showEl('suggestionsEmpty'); return; }
+
+        const priorityClass = p => {
+            if (!p) return 'priority-faible';
+            const v = p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+            if (v === 'haute')   return 'priority-haute';
+            if (v === 'moyenne') return 'priority-moyenne';
+            return 'priority-faible';
+        };
+
+        const priorityLabel = p => {
+            if (!p) return '';
+            const v = p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+            if (v === 'haute')   return 'Haute';
+            if (v === 'moyenne') return 'Moyenne';
+            return 'Faible';
+        };
+
+        const list = document.getElementById('suggestionsList');
+        list.innerHTML = items.map(s => `
+            <div class="suggestion-item">
+                <div class="suggestion-header">
+                    <span class="suggestion-action">${escapeHtml(s.action)}</span>
+                    <span class="priority-badge ${priorityClass(s.priorité)}">${escapeHtml(priorityLabel(s.priorité))}</span>
+                </div>
+                ${s.basé_sur ? `<div class="suggestion-source">${escapeHtml(s.basé_sur)}</div>` : ''}
+            </div>
+        `).join('');
+
+        showEl('suggestionsList');
+    } catch (err) {
+        hideEl('suggestionsLoading');
+        showError('suggestionsError', err.message || 'Impossible de générer des recommandations.');
+        console.error('[Suggestions]', err.message);
+    }
+}
+
+// ── COMPETITORS ───────────────────────────────────────────────
+let _myRating = null; // set by loadScore()
+
+async function loadCompetitors(estabId, myName) {
+    if (!estabId) {
+        hideEl('competitorsLoading');
+        showEl('competitorsEmpty');
+        return;
+    }
+    try {
+        const res  = await fetch(`/api/analytics/competitors/${estabId}`, { headers: getHeaders() });
+        if (!res.ok) throw new Error(await res.json().then(d => d.error).catch(() => 'Erreur'));
+        const competitors = await res.json();
+
+        hideEl('competitorsLoading');
+
+        if (!competitors || competitors.length === 0) {
+            showEl('competitorsEmpty');
+            return;
+        }
+
+        function starsHtml(rating) {
+            if (rating == null) return '<span style="color:var(--text-tertiary)">—</span>';
+            const full  = Math.round(rating);
+            return '★'.repeat(full) + '☆'.repeat(Math.max(0, 5 - full));
+        }
+
+        function deltaHtml(compRating) {
+            if (compRating == null || _myRating == null) return '<span class="comp-activity">—</span>';
+            const diff = (compRating - _myRating).toFixed(1);
+            if (diff > 0) return `<span class="comp-delta comp-delta-pos">+${diff}</span>`;
+            if (diff < 0) return `<span class="comp-delta comp-delta-neg">${diff}</span>`;
+            return `<span class="comp-delta" style="color:var(--text-tertiary)">= 0</span>`;
+        }
+
+        // Row for user's own establishment
+        const myRow = `
+            <tr>
+                <td class="comp-name-cell">
+                    ${escapeHtml(myName || 'Mon établissement')}
+                    <span class="badge-you">Vous</span>
+                </td>
+                <td>
+                    <div class="comp-rating">
+                        <span class="comp-stars">${starsHtml(_myRating)}</span>
+                        <span class="comp-note">${_myRating != null ? _myRating : '—'}</span>
+                    </div>
+                </td>
+                <td class="comp-activity">—</td>
+                <td>—</td>
+            </tr>`;
+
+        const rows = competitors.map(c => `
+            <tr>
+                <td class="comp-name-cell">
+                    ${escapeHtml(c.name)}
+                    ${c.address ? `<div class="comp-address">${escapeHtml(c.address)}</div>` : ''}
+                </td>
+                <td>
+                    <div class="comp-rating">
+                        <span class="comp-stars">${starsHtml(c.rating)}</span>
+                        <span class="comp-note">${c.rating != null ? c.rating : '—'}</span>
+                    </div>
+                </td>
+                <td class="comp-activity">${c.reviewCount != null ? c.reviewCount + ' avis' : '—'}</td>
+                <td>${deltaHtml(c.rating)}</td>
+            </tr>`).join('');
+
+        document.getElementById('competitorsTbody').innerHTML = myRow + rows;
+        showEl('competitorsBody');
+    } catch (err) {
+        hideEl('competitorsLoading');
+        showError('competitorsError', err.message || 'Impossible de charger les concurrents.');
+        console.error('[Competitors]', err.message);
+    }
+}
+
+// ── ALL ESTABLISHMENTS ────────────────────────────────────────
+function starsStr(rating) {
+    if (rating == null) return '';
+    const full = Math.round(rating);
+    return '★'.repeat(full) + '☆'.repeat(Math.max(0, 5 - full));
+}
+
+async function fetchEstabAvgRating(estabId) {
+    try {
+        const res  = await fetch(`/api/analytics/history/${estabId}`, { headers: getHeaders() });
+        if (!res.ok) return null;
+        const rows = await res.json();
+        const active = rows.filter(r => r.avg_rating > 0);
+        if (active.length === 0) return null;
+        const avg = active.reduce((sum, r) => sum + r.avg_rating, 0) / active.length;
+        return parseFloat(avg.toFixed(1));
+    } catch { return null; }
+}
+
+async function loadAllEstablishments(plan, establishments) {
+    const section = document.getElementById('allEstabSection');
+    section.style.display = 'block';
+
+    const isPlanAllowed = plan === 'pro' || plan === 'agency';
+    if (!isPlanAllowed) {
+        showEl('allEstabGate');
+        return;
+    }
+
+    showEl('allEstabContent');
+
+    if (!establishments || establishments.length === 0) {
+        hideEl('allEstabLoading');
+        showEl('allEstabEmpty');
+        return;
+    }
+
+    document.getElementById('allEstabCount').textContent = `${establishments.length} établissement${establishments.length > 1 ? 's' : ''}`;
+
+    try {
+        // Fetch ratings in parallel for all establishments
+        const ratingsArr = await Promise.all(establishments.map(e => fetchEstabAvgRating(e.id)));
+
+        const withRating = establishments.map((e, i) => ({
+            ...e,
+            avgRating: ratingsArr[i],
+        }));
+
+        // Sort by ascending rating (nulls last)
+        withRating.sort((a, b) => {
+            if (a.avgRating == null && b.avgRating == null) return 0;
+            if (a.avgRating == null) return 1;
+            if (b.avgRating == null) return -1;
+            return a.avgRating - b.avgRating;
+        });
+
+        const cards = withRating.map(e => {
+            const rating    = e.avgRating;
+            const barWidth  = rating != null ? Math.round((rating / 5) * 100) : 0;
+            return `
+                <div class="estab-card-item">
+                    <div class="estab-card-name">${escapeHtml(e.name || 'Établissement')}</div>
+                    <div class="estab-card-top">
+                        <span class="estab-card-note">${rating != null ? rating : '—'}</span>
+                        <span class="estab-card-stars">${starsStr(rating)}</span>
+                    </div>
+                    <div class="estab-card-bar-bg">
+                        <div class="estab-card-bar-fill" style="width:${barWidth}%"></div>
+                    </div>
+                    <div class="estab-card-meta">${e.address || ''}</div>
+                </div>`;
+        }).join('');
+
+        document.getElementById('allEstabCards').innerHTML = cards;
+        hideEl('allEstabLoading');
+        document.getElementById('allEstabCards').style.display = 'grid';
+    } catch (err) {
+        hideEl('allEstabLoading');
+        showError('allEstabError', err.message || 'Impossible de charger les établissements.');
+        console.error('[AllEstab]', err.message);
+    }
+}
 
 // ── INIT ──────────────────────────────────────────────────────
 async function init() {
+    let estabId    = null;
+    let estabName  = null;
+    let plan       = 'free';
+    let allEstabs  = [];
+
     try {
-        // Charger info user + plan
-        const meRes  = await fetch('/api/auth/me', { headers: getAuthHeaders() });
-        if (meRes.ok) {
-            const meData = await meRes.json();
-            userPlan     = (meData.user.plan || 'free').toLowerCase();
-            document.getElementById('planBadge').textContent    = 'Plan ' + userPlan;
-            document.getElementById('planBadge').style.display  = 'inline-flex';
+        const res = await fetch('/api/establishments', { headers: getHeaders() });
+        if (res.ok) {
+            const data = await res.json();
+            plan      = data.plan || 'free';
+            allEstabs = data.establishments || [];
+            if (allEstabs.length > 0) {
+                estabId   = allEstabs[0].id;
+                estabName = allEstabs[0].name;
+            }
         }
+    } catch {}
 
-        // Charger les établissements
-        const estabRes  = await fetch('/api/establishments', { headers: getAuthHeaders() });
-        if (!estabRes.ok) throw new Error('Impossible de charger les établissements');
-        const estabData = await estabRes.json();
-        establishments  = estabData.establishments || [];
+    // Score en premier pour que _myRating soit disponible avant loadCompetitors
+    await loadScore();
 
-        // Sidebar footer
-        document.getElementById('sidebarPlanName').textContent  = 'Plan ' + (estabData.plan || userPlan);
-        document.getElementById('sidebarPlanCount').textContent = `${estabData.count || 0}/${estabData.limit || 0}`;
-        const pct = estabData.limit > 0
-            ? Math.round(((estabData.count || 0) / estabData.limit) * 100)
-            : 0;
-        document.getElementById('sidebarPlanFill').style.width  = pct + '%';
-
-        if (establishments.length === 0) {
-            document.getElementById('metricsGrid').innerHTML =
-                '<div class="empty-state" style="grid-column:1/-1"><p>Aucun établissement. <a href="dashboard.html">Ajoutez-en un</a>.</p></div>';
-            return;
-        }
-
-        selectedEstabId = establishments[0].id;
-
-        // Sélecteur + comparaison multi-établissements pour Pro/Agency
-        if (MULTI_PLANS.includes(userPlan) && establishments.length > 1) {
-            const select = document.getElementById('estabSelect');
-            establishments.forEach(e => {
-                const opt       = document.createElement('option');
-                opt.value       = e.id;
-                opt.textContent = e.name;
-                select.appendChild(opt);
-            });
-            document.getElementById('selectorBar').style.display = 'flex';
-            document.getElementById('compareCard').style.display = 'block';
-            loadCompareTable();
-        } else if (!MULTI_PLANS.includes(userPlan)) {
-            document.getElementById('planGate').style.display = 'block';
-        }
-
-        await loadEstablishmentData(selectedEstabId);
-    } catch (err) {
-        console.error('[Analytics init]', err.message);
-    }
-}
-
-function onEstabChange() {
-    selectedEstabId = parseInt(document.getElementById('estabSelect').value, 10);
-    loadEstablishmentData(selectedEstabId);
-}
-
-// ── LOAD DATA FOR ONE ESTABLISHMENT ───────────────────────────
-async function loadEstablishmentData(estabId) {
     await Promise.all([
-        loadHistory(estabId),
-        loadCompetitors(estabId),
+        loadThemes(),
+        loadSuggestions(),
+        estabId ? loadHistory(estabId) : (hideEl('historyLoading'), showEl('historyEmpty')),
+        loadCompetitors(estabId, estabName),
+        loadAllEstablishments(plan, allEstabs),
     ]);
-}
-
-// ── HISTORY → métriques + 2 charts ───────────────────────────
-async function loadHistory(estabId) {
-    try {
-        const res = await fetch(`/api/analytics/history/${estabId}`, { headers: getAuthHeaders() });
-        if (!res.ok) throw new Error('Erreur historique');
-        const rows = await res.json();
-
-        // Métriques calculées depuis l'historique
-        const totalReviews = rows.reduce((s, r) => s + r.count, 0);
-        const currentMonth = rows[rows.length - 1];
-        const prevMonth    = rows[rows.length - 2];
-
-        // Note moyenne globale (moyenne pondérée)
-        const weightedSum = rows.reduce((s, r) => s + (r.avg_rating * r.count), 0);
-        const avgRating   = totalReviews > 0
-            ? parseFloat((weightedSum / totalReviews).toFixed(1))
-            : 0;
-
-        // Tendance : delta note vs mois précédent
-        let trendVal   = '—';
-        let trendLabel = '';
-        if (currentMonth && prevMonth && prevMonth.avg_rating > 0) {
-            const delta = parseFloat((currentMonth.avg_rating - prevMonth.avg_rating).toFixed(1));
-            trendVal   = (delta >= 0 ? '+' : '') + delta;
-            trendLabel = 'vs mois précédent';
-            document.getElementById('metricTrend').style.color =
-                delta >= 0 ? 'var(--success)' : 'var(--danger)';
-        }
-
-        document.getElementById('metricNote').textContent       = avgRating > 0 ? avgRating : '—';
-        document.getElementById('metricStars').textContent      = avgRating > 0 ? toStars(avgRating) : '';
-        document.getElementById('metricTotal').textContent      = totalReviews;
-        document.getElementById('metricMonth').textContent      = currentMonth ? currentMonth.count : 0;
-        document.getElementById('metricTrend').textContent      = trendVal;
-        document.getElementById('metricTrendLabel').textContent = trendLabel;
-
-        const labels  = rows.map(r => fmtMonth(r.month));
-        const ratings = rows.map(r => r.avg_rating || null);
-        const counts  = rows.map(r => r.count);
-
-        renderNoteChart(labels, ratings);
-        renderReviewsChart(labels, counts);
-    } catch (err) {
-        console.error('[Analytics History]', err.message);
-    }
-}
-
-function renderNoteChart(labels, data) {
-    if (noteChartInst) noteChartInst.destroy();
-    noteChartInst = new Chart(document.getElementById('noteChart'), {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [{
-                data,
-                borderColor:          '#1a1a1a',
-                borderWidth:          1.5,
-                pointRadius:          3,
-                pointBackgroundColor: '#1a1a1a',
-                pointBorderColor:     '#fff',
-                pointBorderWidth:     1.5,
-                tension:              0.35,
-                fill:                 false,
-                spanGaps:             true,
-            }],
-        },
-        options: {
-            ...CHART_OPTS_BASE,
-            scales: {
-                y: {
-                    min: 0, max: 5,
-                    ticks: { stepSize: 1 },
-                    grid:  { color: 'rgba(0,0,0,0.06)' },
-                    border: { display: false },
-                },
-                x: {
-                    grid:   { display: false },
-                    border: { display: false },
-                    ticks:  { maxRotation: 0, maxTicksLimit: 6 },
-                },
-            },
-        },
-    });
-}
-
-function renderReviewsChart(labels, data) {
-    if (reviewsChartInst) reviewsChartInst.destroy();
-    reviewsChartInst = new Chart(document.getElementById('reviewsChart'), {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                data,
-                backgroundColor: '#1a1a1a',
-                borderRadius:    3,
-                barPercentage:   0.6,
-            }],
-        },
-        options: {
-            ...CHART_OPTS_BASE,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks:  { stepSize: 1, precision: 0 },
-                    grid:   { color: 'rgba(0,0,0,0.06)' },
-                    border: { display: false },
-                },
-                x: {
-                    grid:   { display: false },
-                    border: { display: false },
-                    ticks:  { maxRotation: 0, maxTicksLimit: 6 },
-                },
-            },
-        },
-    });
-}
-
-// ── COMPETITORS chart ─────────────────────────────────────────
-async function loadCompetitors(estabId) {
-    const loading  = document.getElementById('competitorsLoading');
-    const empty    = document.getElementById('competitorsEmpty');
-    const chartWrap= document.getElementById('competitorsChartWrap');
-
-    loading.style.display   = 'flex';
-    empty.style.display     = 'none';
-    chartWrap.style.display = 'none';
-
-    try {
-        const res  = await fetch(`/api/analytics/competitors/${estabId}`, { headers: getAuthHeaders() });
-        if (!res.ok) throw new Error('Erreur concurrents');
-        const competitors = await res.json();
-
-        loading.style.display = 'none';
-
-        if (!competitors || competitors.length === 0) {
-            empty.style.display = 'block';
-            return;
-        }
-
-        // Inclure l'établissement sélectionné pour comparaison
-        const selected = establishments.find(e => e.id === estabId);
-        const ownEntry = selected ? { name: selected.name + ' (vous)', isOwn: true, rating: null } : null;
-
-        // Récupérer la note de l'établissement depuis les métriques
-        const ownRatingText = document.getElementById('metricNote').textContent;
-        const ownRating     = parseFloat(ownRatingText) || null;
-        if (ownEntry) ownEntry.rating = ownRating;
-
-        const allEntries = [
-            ...(ownEntry ? [ownEntry] : []),
-            ...competitors.map(c => ({ ...c, isOwn: false })),
-        ].filter(e => e.rating !== null);
-
-        if (allEntries.length === 0) {
-            empty.style.display = 'block';
-            return;
-        }
-
-        chartWrap.style.display = 'block';
-        renderCompetitorsChart(allEntries);
-    } catch (err) {
-        loading.style.display = 'none';
-        empty.style.display   = 'block';
-        console.error('[Analytics Competitors]', err.message);
-    }
-}
-
-function renderCompetitorsChart(entries) {
-    if (competitorsChartInst) competitorsChartInst.destroy();
-
-    const labels = entries.map(e => e.name);
-    const data   = entries.map(e => e.rating);
-    const colors = entries.map(e => e.isOwn ? '#1a1a1a' : '#d4d4d4');
-
-    competitorsChartInst = new Chart(document.getElementById('competitorsChart'), {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                data,
-                backgroundColor: colors,
-                borderRadius:    3,
-                barPercentage:   0.55,
-            }],
-        },
-        options: {
-            ...CHART_OPTS_BASE,
-            indexAxis: 'y',
-            scales: {
-                x: {
-                    min: 0, max: 5,
-                    ticks:  { stepSize: 1 },
-                    grid:   { color: 'rgba(0,0,0,0.06)' },
-                    border: { display: false },
-                },
-                y: {
-                    grid:   { display: false },
-                    border: { display: false },
-                    ticks:  { font: { size: 11 } },
-                },
-            },
-        },
-    });
-}
-
-// ── COMPARE TABLE (Pro/Agency) ────────────────────────────────
-async function loadCompareTable() {
-    const loading = document.getElementById('compareLoading');
-    const table   = document.getElementById('compareTable');
-    const tbody   = document.getElementById('compareBody');
-
-    loading.style.display = 'flex';
-    table.style.display   = 'none';
-
-    try {
-        // Charger l'historique de chaque établissement en parallèle
-        const historyResults = await Promise.all(
-            establishments.map(e =>
-                fetch(`/api/analytics/history/${e.id}`, { headers: getAuthHeaders() })
-                    .then(r => r.ok ? r.json() : [])
-                    .catch(() => [])
-            )
-        );
-
-        // Calculer stats par établissement
-        const stats = establishments.map((e, i) => {
-            const rows        = historyResults[i] || [];
-            const total       = rows.reduce((s, r) => s + r.count, 0);
-            const currentMonth= rows[rows.length - 1];
-            const weightedSum = rows.reduce((s, r) => s + (r.avg_rating * r.count), 0);
-            const avgRating   = total > 0 ? parseFloat((weightedSum / total).toFixed(1)) : 0;
-            return {
-                id:        e.id,
-                name:      e.name,
-                avgRating,
-                total,
-                thisMonth: currentMonth ? currentMonth.count : 0,
-            };
-        });
-
-        // Trier par note croissante (le pire en premier — priorité d'action)
-        stats.sort((a, b) => a.avgRating - b.avgRating);
-
-        tbody.innerHTML = stats.map(s => `
-            <tr>
-                <td class="name-cell">${escapeHtml(s.name)}</td>
-                <td>
-                    <div class="rating-bar-wrap">
-                        <div class="rating-bar-bg">
-                            <div class="rating-bar-fill" style="width:${s.avgRating > 0 ? (s.avgRating / 5 * 100).toFixed(0) : 0}%"></div>
-                        </div>
-                        <span class="rating-val">${s.avgRating > 0 ? s.avgRating : '—'}</span>
-                    </div>
-                </td>
-                <td>${s.thisMonth}</td>
-                <td>${s.total}</td>
-            </tr>
-        `).join('');
-
-        loading.style.display = 'none';
-        table.style.display   = 'table';
-    } catch (err) {
-        loading.style.display = 'none';
-        console.error('[Analytics Compare]', err.message);
-    }
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    return String(text)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
 }
 
 window.addEventListener('load', init);

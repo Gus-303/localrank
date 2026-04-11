@@ -37,6 +37,85 @@ function parseCsv(csvText) {
 }
 
 /**
+ * GET /api/campaigns
+ * Liste les campagnes de l'utilisateur avec le nombre de contacts et le taux de clic.
+ */
+campaignsRouter.get('/', verifyToken, async (req, res) => {
+  try {
+    const rows = await db.queryAll(
+      `SELECT
+         c.id,
+         c.subject,
+         c.status,
+         c.clicks,
+         c.sent_at,
+         c.created_at,
+         COUNT(cl.id)::int AS contacts_total
+       FROM campaigns c
+       LEFT JOIN campaign_links cl ON cl.campaign_id = c.id
+       WHERE c.user_id = $1
+       GROUP BY c.id
+       ORDER BY c.created_at DESC
+       LIMIT 50`,
+      [req.user.id]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('[Campaigns List] Error:', error.message);
+    res.status(500).json({
+      error: isProd ? 'Erreur lors du chargement des campagnes.' : error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/campaigns/preview
+ * Corps : { establishment_id, subject }
+ * Génère un aperçu du message IA sans envoyer ni enregistrer.
+ */
+campaignsRouter.post('/preview', verifyToken, async (req, res) => {
+  try {
+    const { establishment_id, subject } = req.body;
+
+    if (!establishment_id || !subject) {
+      return res.status(400).json({ error: 'establishment_id et subject sont requis.' });
+    }
+    if (typeof subject !== 'string' || !subject.trim()) {
+      return res.status(400).json({ error: 'L\'objet ne peut pas être vide.' });
+    }
+
+    const estab = await db.queryOne(
+      'SELECT id, name, type FROM establishments WHERE id = $1 AND user_id = $2',
+      [establishment_id, req.user.id]
+    );
+    if (!estab) {
+      return res.status(403).json({ error: 'Accès interdit.' });
+    }
+
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const aiResult = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      system: 'Tu rédiges des emails professionnels et chaleureux pour demander des avis Google à des clients. Maximum 80 mots. Corps du message uniquement, sans objet ni signature, sans mise en forme markdown.',
+      messages: [{
+        role: 'user',
+        content: `Rédige un email pour demander un avis Google à un client de ce commerce.
+Commerce : ${estab.name} (${estab.type || 'Commerce'})
+Le lien vers la page d'avis sera ajouté automatiquement en fin de message.
+Ton : chaleureux, bref, personnalisé avec "Bonjour [prénom]".`,
+      }],
+    });
+
+    res.json({ message: aiResult.content[0].text.trim() });
+  } catch (error) {
+    console.error('[Campaigns Preview] Error:', error.message);
+    res.status(500).json({
+      error: isProd ? 'Erreur lors de la génération de l\'aperçu.' : error.message,
+    });
+  }
+});
+
+/**
  * POST /api/campaigns/send
  * Corps : { establishment_id, csv, subject, redirect_url? }
  * - Parse les contacts CSV

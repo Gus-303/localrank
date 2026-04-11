@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalRank — Outils</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <style>
+        /* ── QR Code ──────────────────────────────────────── */
+        .qr-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+        }
+
+        .qr-preview {
+            flex-shrink: 0;
+            width: 160px;
+            height: 160px;
+            background: var(--bg-secondary);
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .qr-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .qr-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            color: var(--text-tertiary);
+        }
+
+        .qr-placeholder svg {
+            width: 32px;
+            height: 32px;
+            opacity: .35;
+        }
+
+        .qr-placeholder span {
+            font-size: 11px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .qr-actions {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .qr-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 4px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Code snippet ─────────────────────────────────── */
+        .snippet-wrap {
+            position: relative;
+        }
+
+        .snippet-code {
+            background: var(--bg-secondary);
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: 'IBM Plex Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+            user-select: all;
+        }
+
+        .snippet-copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            background: var(--bg);
+            border: 0.5px solid var(--border);
+            border-radius: 5px;
+            padding: 3px 9px;
+            cursor: pointer;
+            transition: border-color 150ms ease, color 150ms ease;
+        }
+
+        .snippet-copy-btn:hover { border-color: var(--border-hover); color: var(--text); }
+        .snippet-copy-btn.copied { color: var(--success); border-color: rgba(34,197,94,.3); }
+
+        /* ── Public URL ───────────────────────────────────── */
+        .url-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .url-field {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 0.5px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .url-field.empty {
+            color: var(--text-tertiary);
+            font-family: 'DM Sans', system-ui, sans-serif;
+            font-style: italic;
+        }
+
+        /* ── Preview iframe ──────────────────────────────── */
+        .preview-frame-wrap {
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+        }
+
+        .preview-frame-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-bottom: 0.5px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .preview-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border-hover);
+        }
+
+        .preview-url-pill {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 10px;
+            color: var(--text-tertiary);
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 360px;
+            border: none;
+            display: block;
+        }
+
+        .preview-placeholder {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* ── Section desc ────────────────────────────────── */
+        .section-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* ── Responsive ──────────────────────────────────── */
+        @media (max-width: 768px) {
+            .qr-wrap { flex-direction: column; }
+            .qr-preview { width: 140px; height: 140px; }
+            .url-row { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+
+    <!-- ─── SIDEBAR ──────────────────────────────────────── -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-mark">LR</span>
+            <span class="logo-name" id="businessName">LocalRank</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <span class="nav-label">Principal</span>
+            <a class="nav-item" href="dashboard.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="1" width="5.5" height="5.5" rx="1"/>
+                    <rect x="8.5" y="1" width="5.5" height="5.5" rx="1"/>
+                    <rect x="1" y="8.5" width="5.5" height="5.5" rx="1"/>
+                    <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1"/>
+                </svg>
+                Aperçu
+            </a>
+            <a class="nav-item" href="dashboard.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 9a1 1 0 0 1-1 1H4l-3 3V2a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7z"/>
+                </svg>
+                Avis Google
+            </a>
+            <a class="nav-item" href="dashboard.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="1" width="13" height="13" rx="2"/>
+                    <line x1="4" y1="5" x2="11" y2="5"/>
+                    <line x1="4" y1="8" x2="11" y2="8"/>
+                    <line x1="4" y1="11" x2="8" y2="11"/>
+                </svg>
+                Posts Google
+            </a>
+            <a class="nav-item" href="analytics.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1,11 5,7 8,9 14,3"/>
+                    <line x1="1" y1="14" x2="14" y2="14"/>
+                </svg>
+                Analytique
+            </a>
+            <a class="nav-item active" href="tools.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 1.5a3.5 3.5 0 0 1 3.5 3.5c0 .95-.38 1.81-1 2.44L10 9l-4.5 4.5a1.5 1.5 0 0 1-2.12-2.12L8 6.88 9.5 5.5A3.5 3.5 0 0 1 9 1.5z"/>
+                    <line x1="1.5" y1="13.5" x2="3.5" y2="11.5"/>
+                </svg>
+                Outils
+            </a>
+            <a class="nav-item" href="campaigns.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 3l6 4 6-4"/>
+                    <rect x="1" y="3" width="13" height="9" rx="1.5"/>
+                </svg>
+                Campagnes
+            </a>
+
+            <span class="nav-label" style="margin-top:8px">Gestion</span>
+            <a class="nav-item" href="dashboard.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 13V6.5l6.5-4.5 6.5 4.5V13H1z"/>
+                    <rect x="5" y="8.5" width="4" height="4.5"/>
+                </svg>
+                Établissements
+            </a>
+            <a class="nav-item" href="dashboard.html">
+                <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="13" height="10" rx="1.5"/>
+                    <line x1="1" y1="7" x2="14" y2="7"/>
+                </svg>
+                Abonnement
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-plan">
+                <div class="sidebar-plan-row">
+                    <span class="sidebar-plan-name" id="sidebarPlanName">Plan free</span>
+                    <span class="sidebar-plan-count" id="sidebarPlanCount">0/0</span>
+                </div>
+                <div class="sidebar-plan-bar">
+                    <div class="sidebar-plan-fill" id="sidebarPlanFill" style="width:0%"></div>
+                </div>
+            </div>
+            <button class="btn-logout" id="logoutBtn">Déconnexion</button>
+        </div>
+    </aside>
+
+    <!-- ─── MAIN ──────────────────────────────────────────── -->
+    <main class="main">
+
+        <div class="topbar">
+            <span class="topbar-title">Outils</span>
+            <div class="topbar-actions">
+                <span class="topbar-email" id="userEmail"></span>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- ── QR Code ────────────────────────────────── -->
+            <div class="card" style="margin-bottom:12px">
+                <div class="card-header">
+                    <span class="card-title">QR Code</span>
+                    <span style="font-size:11px;color:var(--text-tertiary)">Redirige vers votre page publique</span>
+                </div>
+                <div class="qr-wrap">
+                    <div class="qr-preview" id="qrPreview">
+                        <div class="qr-placeholder" id="qrPlaceholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="3" height="3"/>
+                                <rect x="18" y="14" width="3" height="3"/>
+                                <rect x="14" y="18" width="3" height="3"/>
+                                <rect x="18" y="18" width="3" height="3"/>
+                            </svg>
+                            <span>Non généré</span>
+                        </div>
+                    </div>
+                    <div class="qr-actions">
+                        <p class="qr-desc">Générez un QR code unique pour votre établissement. Vos clients le scannent et accèdent directement à votre page d'avis publique.</p>
+                        <div class="btn-row">
+                            <button class="btn btn-primary" id="qrGenerateBtn">Générer le QR code</button>
+                            <a class="btn btn-secondary" id="qrDownloadBtn" style="display:none" download="qrcode-localrank.png">Télécharger</a>
+                        </div>
+                        <div id="qrError" class="error-block"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Widget ─────────────────────────────────── -->
+            <div class="card" style="margin-bottom:12px">
+                <div class="card-header">
+                    <span class="card-title">Widget avis</span>
+                    <span style="font-size:11px;color:var(--text-tertiary)">À intégrer sur votre site</span>
+                </div>
+                <p class="section-desc">Copiez ce code HTML et collez-le dans votre site web pour afficher vos meilleurs avis Google.</p>
+                <div class="snippet-wrap">
+                    <pre class="snippet-code" id="widgetSnippet">Chargement…</pre>
+                    <button class="snippet-copy-btn" id="widgetCopyBtn">Copier le code</button>
+                </div>
+            </div>
+
+            <!-- ── Page publique ──────────────────────────── -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Page publique</span>
+                    <span style="font-size:11px;color:var(--text-tertiary)">Partagez cette URL</span>
+                </div>
+                <p class="section-desc">Partagez ce lien avec vos clients pour qu'ils consultent vos avis et laissent un commentaire.</p>
+                <div class="url-row">
+                    <div class="url-field empty" id="publicUrl">Chargement…</div>
+                    <button class="btn btn-secondary" id="urlCopyBtn">Copier le lien</button>
+                    <a class="btn btn-secondary" id="urlOpenBtn" href="#" target="_blank" rel="noopener" style="display:none">Ouvrir</a>
+                </div>
+                <div id="urlError" class="error-block"></div>
+
+                <!-- Aperçu -->
+                <div class="preview-frame-wrap" id="previewWrap" style="display:none">
+                    <div class="preview-frame-bar">
+                        <div class="preview-dot"></div>
+                        <div class="preview-dot"></div>
+                        <div class="preview-dot"></div>
+                        <div class="preview-url-pill" id="previewUrlPill"></div>
+                    </div>
+                    <iframe class="preview-frame" id="previewFrame" title="Aperçu page publique" sandbox="allow-scripts allow-same-origin"></iframe>
+                </div>
+                <div class="preview-placeholder" id="previewPlaceholder">
+                    <span style="font-size:12px;color:var(--text-tertiary)">L'aperçu s'affichera après le chargement.</span>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+// ── AUTH ──────────────────────────────────────────────────────
+(function () {
+    const token = localStorage.getItem('token');
+    const user  = localStorage.getItem('user');
+    if (!token || !user) { window.location.href = 'login.html'; return; }
+    const u = JSON.parse(user);
+    document.getElementById('userEmail').textContent    = u.email        || '';
+    document.getElementById('businessName').textContent = u.businessName || 'LocalRank';
+})();
+
+function getHeaders() {
+    return {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+    };
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+});
+
+// ── HELPERS ───────────────────────────────────────────────────
+function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+}
+
+function clearError(id) {
+    const el = document.getElementById(id);
+    el.textContent = '';
+    el.classList.remove('show');
+}
+
+async function copyToClipboard(text, btn, label) {
+    try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = 'Copié !';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = label;
+            btn.classList.remove('copied');
+        }, 2000);
+    } catch {
+        btn.textContent = 'Erreur';
+        setTimeout(() => { btn.textContent = label; }, 2000);
+    }
+}
+
+// ── STATE ─────────────────────────────────────────────────────
+let _estabId   = null;
+let _estabSlug = null;
+let _baseUrl   = window.location.origin;
+
+// ── QR CODE ───────────────────────────────────────────────────
+document.getElementById('qrGenerateBtn').addEventListener('click', generateQr);
+
+async function generateQr() {
+    if (!_estabId) {
+        showError('qrError', 'Aucun établissement trouvé. Créez-en un dans Établissements.');
+        return;
+    }
+    clearError('qrError');
+    const btn = document.getElementById('qrGenerateBtn');
+    btn.textContent = 'Génération…';
+    btn.disabled    = true;
+
+    try {
+        const res = await fetch(`/api/tools/qrcode/${_estabId}`, { headers: getHeaders() });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Erreur lors de la génération.');
+        }
+
+        const blob   = await res.blob();
+        const objUrl = URL.createObjectURL(blob);
+
+        // Afficher l'image
+        const placeholder = document.getElementById('qrPlaceholder');
+        placeholder.style.display = 'none';
+
+        let img = document.getElementById('qrImg');
+        if (!img) {
+            img = document.createElement('img');
+            img.id  = 'qrImg';
+            img.alt = 'QR Code';
+            document.getElementById('qrPreview').appendChild(img);
+        }
+        img.src = objUrl;
+
+        // Activer le bouton télécharger
+        const dlBtn = document.getElementById('qrDownloadBtn');
+        dlBtn.href  = objUrl;
+        dlBtn.download = `qrcode-${_estabSlug || _estabId}.png`;
+        dlBtn.style.display = '';
+
+        btn.textContent = 'Régénérer';
+    } catch (err) {
+        showError('qrError', err.message || 'Impossible de générer le QR code.');
+        console.error('[QRCode]', err.message);
+        btn.textContent = 'Générer le QR code';
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+// ── WIDGET ────────────────────────────────────────────────────
+function buildWidgetSnippet(estabId) {
+    const src = `${_baseUrl}/widget/${estabId}`;
+    return `<iframe\n  src="${src}"\n  width="500"\n  height="420"\n  frameborder="0"\n  style="border:none;border-radius:10px"\n  title="Avis clients"\n  loading="lazy"\n></iframe>`;
+}
+
+function setupWidget(estabId) {
+    const snippet  = buildWidgetSnippet(estabId);
+    const pre      = document.getElementById('widgetSnippet');
+    const copyBtn  = document.getElementById('widgetCopyBtn');
+
+    pre.textContent = snippet;
+
+    copyBtn.addEventListener('click', () => {
+        copyToClipboard(snippet, copyBtn, 'Copier le code');
+    });
+}
+
+// ── PUBLIC PAGE ───────────────────────────────────────────────
+function setupPublicPage(slug) {
+    const urlField    = document.getElementById('publicUrl');
+    const copyBtn     = document.getElementById('urlCopyBtn');
+    const openBtn     = document.getElementById('urlOpenBtn');
+    const previewWrap = document.getElementById('previewWrap');
+    const previewPlaceholder = document.getElementById('previewPlaceholder');
+    const previewFrame       = document.getElementById('previewFrame');
+    const previewUrlPill     = document.getElementById('previewUrlPill');
+
+    if (!slug) {
+        urlField.textContent = 'Aucune page publique — slug manquant sur cet établissement.';
+        urlField.classList.add('empty');
+        showError('urlError', 'Configurez un slug pour votre établissement dans Paramètres.');
+        return;
+    }
+
+    const publicUrl = `${_baseUrl}/p/${slug}`;
+
+    urlField.textContent = publicUrl;
+    urlField.classList.remove('empty');
+
+    openBtn.href = publicUrl;
+    openBtn.style.display = '';
+
+    previewUrlPill.textContent = `/p/${slug}`;
+    previewFrame.src  = publicUrl;
+    previewWrap.style.display       = 'block';
+    previewPlaceholder.style.display = 'none';
+
+    copyBtn.addEventListener('click', () => {
+        copyToClipboard(publicUrl, copyBtn, 'Copier le lien');
+    });
+}
+
+// ── SIDEBAR PLAN ──────────────────────────────────────────────
+async function loadSidebarPlan() {
+    try {
+        const res = await fetch('/api/establishments', { headers: getHeaders() });
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById('sidebarPlanName').textContent  = 'Plan ' + (data.plan || 'free');
+        document.getElementById('sidebarPlanCount').textContent = `${data.count || 0}/${data.limit || 0}`;
+        const pct = data.limit > 0 ? Math.round((data.count / data.limit) * 100) : 0;
+        document.getElementById('sidebarPlanFill').style.width  = pct + '%';
+    } catch {}
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+    try {
+        const res = await fetch('/api/establishments', { headers: getHeaders() });
+        if (!res.ok) throw new Error('Impossible de récupérer les établissements.');
+        const data = await res.json();
+
+        const estabs = data.establishments || [];
+        if (estabs.length > 0) {
+            _estabId   = estabs[0].id;
+            _estabSlug = estabs[0].slug || null;
+        }
+
+        document.getElementById('sidebarPlanName').textContent  = 'Plan ' + (data.plan || 'free');
+        document.getElementById('sidebarPlanCount').textContent = `${data.count || 0}/${data.limit || 0}`;
+        const pct = data.limit > 0 ? Math.round((data.count / data.limit) * 100) : 0;
+        document.getElementById('sidebarPlanFill').style.width  = pct + '%';
+    } catch (err) {
+        console.error('[Init]', err.message);
+    }
+
+    if (_estabId) {
+        setupWidget(_estabId);
+    } else {
+        document.getElementById('widgetSnippet').textContent =
+            'Aucun établissement trouvé. Créez-en un dans Établissements pour obtenir votre widget.';
+    }
+
+    setupPublicPage(_estabSlug);
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
